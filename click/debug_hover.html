@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鼠标悬停功能调试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .debug-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #333;
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            max-width: 300px;
+            z-index: 999999;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .test-button {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px 30px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .test-button:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        
+        .large-button {
+            padding: 30px 60px;
+            font-size: 20px;
+        }
+        
+        .small-button {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        
+        .test-div {
+            display: inline-block;
+            margin: 10px;
+            padding: 20px;
+            background: #28a745;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            min-width: 100px;
+            text-align: center;
+        }
+        
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .step {
+            background: #e7f3ff;
+            border: 1px solid #b3d7ff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        
+        .expected {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            color: #155724;
+        }
+        
+        .console-output {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-info" id="debugInfo">
+        等待扩展启动选择模式...
+    </div>
+
+    <div class="container">
+        <h1>🔍 鼠标悬停功能调试页面</h1>
+        
+        <div class="instructions">
+            <h3>📋 调试步骤：</h3>
+            <div class="step">
+                <strong>步骤1:</strong> 打开浏览器开发者工具 (按F12，切换到Console标签)
+            </div>
+            <div class="step">
+                <strong>步骤2:</strong> 点击扩展图标，选择"选择要点击的按钮"
+            </div>
+            <div class="step">
+                <strong>步骤3:</strong> 将鼠标悬停在下面的按钮上，观察：
+                <div class="expected">✅ 期望: 按钮出现蓝色边框高亮</div>
+                <div class="expected">✅ 期望: 控制台显示详细调试信息</div>
+            </div>
+        </div>
+
+        <h3>🎯 测试按钮区域</h3>
+        <p>尝试将鼠标悬停在下面不同的按钮上：</p>
+        
+        <button class="test-button" onclick="logClick('普通按钮')">普通按钮</button>
+        <button class="test-button large-button" onclick="logClick('大按钮')">大按钮</button>
+        <button class="test-button small-button" onclick="logClick('小按钮')">小按钮</button>
+        
+        <br><br>
+        
+        <div class="test-div" onclick="logClick('DIV元素')">可点击的DIV</div>
+        <div class="test-div" onclick="logClick('另一个DIV')">另一个DIV</div>
+        
+        <br><br>
+        
+        <input type="button" value="输入按钮" class="test-button" onclick="logClick('输入按钮')">
+        <a href="#" class="test-button" style="text-decoration: none;" onclick="logClick('链接按钮'); return false;">链接按钮</a>
+    </div>
+
+    <div class="container">
+        <h3>📊 期望的控制台输出</h3>
+        <p>当鼠标悬停在按钮上时，控制台应该显示类似以下信息：</p>
+        
+        <div class="console-output">
+🚀 开始元素选择模式: single
+🔧 检查事件处理器绑定: {boundHandleMouseOver: true, boundHandleMouseOut: true, boundHandleElementClick: true}
+✅ 事件监听器已添加
+🧪 开始测试鼠标事件...
+🐭 检测到鼠标移动: BUTTON 无类名
+🐭 handleMouseOver 被触发: BUTTON test-button
+✅ 开始高亮元素: BUTTON test-button
+✅ 元素可以被选择: BUTTON test-button
+🎨 添加高亮效果到: BUTTON test-button
+✅ 高亮效果已应用
+💡 鼠标悬停处理完成: BUTTON
+        </div>
+    </div>
+
+    <div class="container">
+        <h3>❌ 常见问题诊断</h3>
+        
+        <h4>问题1: 控制台没有任何输出</h4>
+        <ul>
+            <li>确认扩展已重新加载</li>
+            <li>确认点击了"选择要点击的按钮"</li>
+            <li>尝试刷新当前页面</li>
+        </ul>
+        
+        <h4>问题2: 只看到"🚀 开始元素选择模式"但没有鼠标事件</h4>
+        <ul>
+            <li>事件监听器可能没有正确绑定</li>
+            <li>检查浏览器兼容性</li>
+            <li>尝试在其他网站测试</li>
+        </ul>
+        
+        <h4>问题3: 看到"🐭 handleMouseOver 被触发"但没有高亮</h4>
+        <ul>
+            <li>CSS样式可能被网站覆盖</li>
+            <li>检查是否有JavaScript错误</li>
+            <li>尝试不同类型的元素</li>
+        </ul>
+        
+        <h4>问题4: 所有调试信息都正常但看不到蓝色边框</h4>
+        <ul>
+            <li>网站可能有强制性CSS样式</li>
+            <li>尝试使用浏览器检查元素功能查看样式</li>
+            <li>可能需要增加CSS优先级</li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <h3>🛠️ 手动测试工具</h3>
+        <button onclick="simulateExtensionStart()" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">
+            模拟扩展启动 (用于测试)
+        </button>
+        
+        <button onclick="clearDebugInfo()" style="background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">
+            清除调试信息
+        </button>
+        
+        <div id="manualTestOutput" class="console-output" style="margin-top: 15px; min-height: 100px;">
+            手动测试输出将显示在这里...
+        </div>
+    </div>
+
+    <script>
+        let mouseEventCount = 0;
+        
+        function logClick(buttonName) {
+            console.log('🖱️ 按钮被点击:', buttonName);
+            document.getElementById('debugInfo').innerHTML = `按钮被点击: ${buttonName}<br>时间: ${new Date().toLocaleTimeString()}`;
+        }
+        
+        function updateDebugInfo(message) {
+            const debugDiv = document.getElementById('debugInfo');
+            debugDiv.innerHTML = message + '<br><small>' + new Date().toLocaleTimeString() + '</small>';
+        }
+        
+        function simulateExtensionStart() {
+            console.log('🧪 开始模拟扩展功能...');
+            
+            // 模拟扩展的鼠标事件监听
+            const testHandler = (e) => {
+                mouseEventCount++;
+                const message = `鼠标事件 #${mouseEventCount}: ${e.target.tagName}`;
+                console.log('🐭', message);
+                updateDebugInfo(message);
+            };
+            
+            document.addEventListener('mouseover', testHandler);
+            
+            // 30秒后移除
+            setTimeout(() => {
+                document.removeEventListener('mouseover', testHandler);
+                console.log('🛑 模拟测试结束');
+                updateDebugInfo('模拟测试结束');
+            }, 30000);
+            
+            updateDebugInfo('🧪 模拟扩展已启动 (30秒测试)');
+        }
+        
+        function clearDebugInfo() {
+            document.getElementById('debugInfo').innerHTML = '调试信息已清除';
+            document.getElementById('manualTestOutput').innerHTML = '手动测试输出将显示在这里...';
+            console.clear();
+        }
+        
+        // 页面加载完成提示
+        window.addEventListener('load', function() {
+            console.log('📄 调试页面已加载完成');
+            console.log('💡 提示: 打开F12控制台，然后启动扩展的选择模式');
+            updateDebugInfo('页面已加载，等待扩展启动');
+        });
+        
+        // 监听所有鼠标事件用于调试
+        ['mouseover', 'mouseout', 'click', 'mousemove'].forEach(eventType => {
+            document.addEventListener(eventType, function(e) {
+                if (e.target.classList.contains('test-button') || e.target.classList.contains('test-div')) {
+                    console.log(`📍 原生${eventType}事件:`, e.target.tagName, e.target.textContent);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>夹缝求生游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .game-container {
+            width: 800px;
+            height: 600px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .game-area {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 上方蓝色区域 - 复杂凹凸结构，只有一个空缺 */
+        .top-block {
+            width: 100%;
+            height: 40%;
+            background: #2196F3;
+            position: relative;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid #1976D2;
+        }
+
+        /* 下方蓝色区域 - 对应的复杂凸起结构 */
+        .bottom-block {
+            width: 100%;
+            height: 40%;
+            background: #2196F3;
+            position: relative;
+            transition: all 0.3s ease;
+            margin-top: auto;
+            border-top: 3px solid #1976D2;
+        }
+
+        /* 形状变体1 - 左侧空缺 */
+        .shape-variant-1 .top-block {
+            clip-path: polygon(
+                0% 0%, 100% 0%, 100% 100%, 
+                85% 100%, 85% 75%, 75% 75%, 75% 100%, 
+                65% 100%, 65% 80%, 55% 80%, 55% 100%, 
+                45% 100%, 45% 85%, 35% 85%, 35% 100%, 
+                25% 100%, 25% 70%, 15% 70%, 15% 100%, 
+                0% 100%
+            );
+        }
+
+        .shape-variant-1 .bottom-block {
+            clip-path: polygon(
+                0% 0%, 25% 0%, 25% 30%, 35% 30%, 35% 0%, 
+                45% 0%, 45% 15%, 55% 15%, 55% 0%, 
+                65% 0%, 65% 20%, 75% 20%, 75% 0%, 
+                85% 0%, 85% 25%, 100% 25%, 100% 100%, 0% 100%
+            );
+        }
+
+        /* 形状变体2 - 中心空缺 */
+        .shape-variant-2 .top-block {
+            clip-path: polygon(
+                0% 0%, 100% 0%, 100% 100%, 
+                85% 100%, 85% 80%, 75% 80%, 75% 100%, 
+                65% 100%, 65% 75%, 55% 75%, 55% 100%, 
+                25% 100%, 25% 85%, 15% 85%, 15% 100%, 
+                0% 100%
+            );
+        }
+
+        .shape-variant-2 .bottom-block {
+            clip-path: polygon(
+                0% 0%, 15% 0%, 15% 15%, 25% 15%, 25% 0%, 
+                55% 0%, 55% 25%, 65% 25%, 65% 0%, 
+                75% 0%, 75% 20%, 85% 20%, 85% 0%, 
+                100% 0%, 100% 100%, 0% 100%
+            );
+        }
+
+        /* 形状变体3 - 右侧空缺 */
+        .shape-variant-3 .top-block {
+            clip-path: polygon(
+                0% 0%, 100% 0%, 100% 100%, 
+                75% 100%, 75% 85%, 65% 85%, 65% 100%, 
+                55% 100%, 55% 80%, 45% 80%, 45% 100%, 
+                35% 100%, 35% 75%, 25% 75%, 25% 100%, 
+                15% 100%, 15% 70%, 0% 70%
+            );
+        }
+
+        .shape-variant-3 .bottom-block {
+            clip-path: polygon(
+                0% 0%, 0% 30%, 15% 30%, 15% 0%, 
+                25% 0%, 25% 25%, 35% 25%, 35% 0%, 
+                45% 0%, 45% 20%, 55% 20%, 55% 0%, 
+                65% 0%, 65% 15%, 100% 15%, 100% 100%, 0% 100%
+            );
+        }
+
+        /* 中间游戏区域 */
+        .middle-area {
+            flex: 1;
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* 合拢后的白色空隙效果 */
+        .gap-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #2196F3;
+            z-index: 5;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .game-area.closing .gap-overlay {
+            opacity: 1;
+        }
+
+        /* 根据当前形状变体显示对应的空隙 */
+        .shape-variant-1.closing .gap-overlay {
+            background: linear-gradient(to right, 
+                white 0%, white 15%, 
+                #2196F3 15%, #2196F3 100%
+            );
+        }
+
+        .shape-variant-2.closing .gap-overlay {
+            background: linear-gradient(to right, 
+                #2196F3 0%, #2196F3 35%, 
+                white 35%, white 55%, 
+                #2196F3 55%, #2196F3 100%
+            );
+        }
+
+        .shape-variant-3.closing .gap-overlay {
+            background: linear-gradient(to right, 
+                #2196F3 0%, #2196F3 75%, 
+                white 75%, white 100%
+            );
+        }
+
+        /* 玩家角色 */
+        .player {
+            width: 40px;
+            height: 40px;
+            background: #f44336;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: left 0.2s ease;
+            border: 3px solid #d32f2f;
+            z-index: 15;
+            box-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
+        }
+
+        .player::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 15px;
+            height: 15px;
+            background: white;
+            border-radius: 50%;
+        }
+
+
+
+        /* 控制按钮 */
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 20;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: scale(1.1);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 游戏状态显示 */
+        .game-status {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            z-index: 20;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .score {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            z-index: 20;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 动画效果 */
+        .closing {
+            animation: closeBlocks 2s ease-in-out;
+        }
+
+        @keyframes closeBlocks {
+            0% {
+                height: 40%;
+            }
+            50% {
+                height: 45%;
+            }
+            100% {
+                height: 50%;
+            }
+        }
+
+        /* 增强的阴影和立体效果 */
+        .top-block {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(180deg, #42A5F5 0%, #2196F3 50%, #1976D2 100%);
+        }
+
+        .bottom-block {
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(0deg, #42A5F5 0%, #2196F3 50%, #1976D2 100%);
+        }
+
+        .top-block.closing {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+
+        .bottom-block.closing {
+            box-shadow: 0 -15px 35px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 添加边缘发光效果增强形状可见性 */
+        .top-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 50%, rgba(0,0,0,0.1) 100%);
+            clip-path: inherit;
+            pointer-events: none;
+        }
+
+        .bottom-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(0deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 50%, rgba(0,0,0,0.1) 100%);
+            clip-path: inherit;
+            pointer-events: none;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 30;
+            display: none;
+        }
+
+        .game-over h2 {
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+
+        .game-over button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .game-over button:hover {
+            background: #1976D2;
+        }
+
+        /* 开始游戏按钮 */
+        .start-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 40px;
+            font-size: 24px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            z-index: 25;
+            transition: all 0.3s ease;
+        }
+
+        .start-btn:hover {
+            background: #45a049;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-area">
+            <div class="game-status" id="gameStatus">夹缝求生</div>
+            <div class="score" id="score">得分: 0 | 最高分: 0</div>
+            
+            <div class="top-block" id="topBlock"></div>
+            
+            <div class="middle-area" id="middleArea">
+                <div class="gap-overlay" id="gapOverlay"></div>
+                <div class="player" id="player"></div>
+            </div>
+            
+            <div class="bottom-block" id="bottomBlock"></div>
+            
+            <div class="controls">
+                <button class="control-btn" id="leftBtn">◀</button>
+                <button class="control-btn" id="rightBtn">▶</button>
+            </div>
+            
+            <button class="start-btn" id="startBtn">开始游戏</button>
+            
+            <div class="game-over" id="gameOver">
+                <h2 id="gameOverTitle">游戏结束</h2>
+                <p id="gameOverText">你被夹住了!</p>
+                <button onclick="restartGame()">重新开始</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class CrushGame {
+            constructor() {
+                this.player = document.getElementById('player');
+                this.topBlock = document.getElementById('topBlock');
+                this.bottomBlock = document.getElementById('bottomBlock');
+                this.gameStatus = document.getElementById('gameStatus');
+                this.scoreElement = document.getElementById('score');
+                this.gameOver = document.getElementById('gameOver');
+                this.gameOverTitle = document.getElementById('gameOverTitle');
+                this.gameOverText = document.getElementById('gameOverText');
+                this.startBtn = document.getElementById('startBtn');
+                
+                this.gameWidth = 800;
+                this.playerWidth = 40;
+                this.playerPosition = this.gameWidth / 2 - this.playerWidth / 2;
+                this.isGameActive = false;
+                this.isClosing = false;
+                this.score = 0;
+                this.highScore = localStorage.getItem('crushGameHighScore') || 0;
+                this.gameSpeed = 2000; // 初始速度2秒
+                this.minSpeed = 800; // 最小速度0.8秒
+                
+                // 定义三种形状变体，每种只有一个空缺区域
+                this.shapeVariants = [
+                    {
+                        id: 1,
+                        className: 'shape-variant-1',
+                        gapLeft: 0.0 * this.gameWidth,
+                        gapRight: 0.15 * this.gameWidth,
+                        description: '左侧空缺'
+                    },
+                    {
+                        id: 2,
+                        className: 'shape-variant-2', 
+                        gapLeft: 0.35 * this.gameWidth,
+                        gapRight: 0.55 * this.gameWidth,
+                        description: '中心空缺'
+                    },
+                    {
+                        id: 3,
+                        className: 'shape-variant-3',
+                        gapLeft: 0.75 * this.gameWidth,
+                        gapRight: 1.0 * this.gameWidth,
+                        description: '右侧空缺'
+                    }
+                ];
+                
+                this.currentVariant = null;
+                this.gameArea = document.querySelector('.game-area');
+                
+                this.initializeGame();
+                this.bindEvents();
+            }
+            
+            initializeGame() {
+                this.updateScore();
+                this.resetPlayerPosition();
+                this.selectRandomShape();
+            }
+            
+            bindEvents() {
+                // 按钮事件
+                document.getElementById('leftBtn').addEventListener('click', () => this.movePlayer('left'));
+                document.getElementById('rightBtn').addEventListener('click', () => this.movePlayer('right'));
+                this.startBtn.addEventListener('click', () => this.startGame());
+                
+                // 键盘事件
+                document.addEventListener('keydown', (e) => {
+                    if (!this.isGameActive) return;
+                    
+                    if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
+                        this.movePlayer('left');
+                    } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
+                        this.movePlayer('right');
+                    }
+                });
+                
+                // 触摸事件（移动设备）
+                let touchStartX = 0;
+                document.addEventListener('touchstart', (e) => {
+                    touchStartX = e.touches[0].clientX;
+                });
+                
+                document.addEventListener('touchend', (e) => {
+                    if (!this.isGameActive) return;
+                    
+                    const touchEndX = e.changedTouches[0].clientX;
+                    const diff = touchStartX - touchEndX;
+                    
+                    if (Math.abs(diff) > 50) { // 最小滑动距离
+                        if (diff > 0) {
+                            this.movePlayer('left');
+                        } else {
+                            this.movePlayer('right');
+                        }
+                    }
+                });
+            }
+            
+            startGame() {
+                this.isGameActive = true;
+                this.startBtn.style.display = 'none';
+                this.gameOver.style.display = 'none';
+                this.score = 0;
+                this.gameSpeed = 2000;
+                this.updateScore();
+                this.gameStatus.textContent = '准备...';
+                
+                setTimeout(() => {
+                    this.nextRound();
+                }, 1000);
+            }
+            
+            nextRound() {
+                if (!this.isGameActive) return;
+                
+                this.selectRandomShape();
+                this.gameStatus.textContent = '观察形状，找到空缺位置!';
+                
+                // 给玩家时间选择位置
+                setTimeout(() => {
+                    this.startClosing();
+                }, 1500);
+            }
+            
+            selectRandomShape() {
+                // 随机选择一种形状变体
+                const randomIndex = Math.floor(Math.random() * this.shapeVariants.length);
+                this.currentVariant = this.shapeVariants[randomIndex];
+                
+                // 清除所有形状类名
+                this.gameArea.classList.remove('shape-variant-1', 'shape-variant-2', 'shape-variant-3');
+                
+                // 应用新的形状类名
+                this.gameArea.classList.add(this.currentVariant.className);
+                
+                // 重置方块位置
+                this.resetBlocks();
+            }
+            
+            resetBlocks() {
+                // 重置方块位置
+                this.topBlock.style.height = '40%';
+                this.bottomBlock.style.height = '40%';
+                this.topBlock.classList.remove('closing');
+                this.bottomBlock.classList.remove('closing');
+                this.gameArea.classList.remove('closing');
+            }
+            
+
+            
+            startClosing() {
+                if (!this.isGameActive) return;
+                
+                this.isClosing = true;
+                this.gameStatus.textContent = '合拢中...';
+                
+                // 添加合拢动画和白色空隙效果
+                this.topBlock.classList.add('closing');
+                this.bottomBlock.classList.add('closing');
+                this.gameArea.classList.add('closing');
+                this.topBlock.style.height = '50%';
+                this.bottomBlock.style.height = '50%';
+                
+                // 检查玩家是否在安全位置
+                setTimeout(() => {
+                    this.checkCollision();
+                }, this.gameSpeed * 0.8); // 在动画快结束时检查
+            }
+            
+            checkCollision() {
+                if (!this.isGameActive || !this.currentVariant) return;
+                
+                const playerLeft = this.playerPosition;
+                const playerRight = this.playerPosition + this.playerWidth;
+                
+                // 检查玩家是否完全在当前形状变体的唯一空缺区域内
+                const isInGap = playerLeft >= this.currentVariant.gapLeft && 
+                               playerRight <= this.currentVariant.gapRight;
+                
+                if (isInGap) {
+                    this.score++;
+                    this.updateScore();
+                    this.gameStatus.textContent = `安全! 躲在了${this.currentVariant.description}`;
+                    
+                    // 增加难度（减少时间）
+                    this.gameSpeed = Math.max(this.minSpeed, this.gameSpeed - 50);
+                    
+                    setTimeout(() => {
+                        this.nextRound();
+                    }, 1000);
+                } else {
+                    this.endGame(false);
+                }
+                
+                this.isClosing = false;
+            }
+            
+            movePlayer(direction) {
+                if (!this.isGameActive || this.isClosing) return;
+                
+                const moveDistance = 80;
+                
+                if (direction === 'left') {
+                    this.playerPosition = Math.max(0, this.playerPosition - moveDistance);
+                } else if (direction === 'right') {
+                    this.playerPosition = Math.min(this.gameWidth - this.playerWidth, this.playerPosition + moveDistance);
+                }
+                
+                this.player.style.left = this.playerPosition + 'px';
+            }
+            
+            resetPlayerPosition() {
+                this.playerPosition = this.gameWidth / 2 - this.playerWidth / 2;
+                this.player.style.left = this.playerPosition + 'px';
+            }
+            
+            updateScore() {
+                this.scoreElement.textContent = `得分: ${this.score} | 最高分: ${this.highScore}`;
+                
+                if (this.score > this.highScore) {
+                    this.highScore = this.score;
+                    localStorage.setItem('crushGameHighScore', this.highScore);
+                }
+            }
+            
+            endGame(isWin) {
+                this.isGameActive = false;
+                this.isClosing = false;
+                
+                if (isWin) {
+                    this.gameOverTitle.textContent = '恭喜胜利!';
+                    this.gameOverText.textContent = `你成功躲避了 ${this.score} 次!`;
+                } else {
+                    this.gameOverTitle.textContent = '游戏结束';
+                    this.gameOverText.textContent = `你被夹住了! 最终得分: ${this.score}`;
+                }
+                
+                this.gameOver.style.display = 'block';
+                
+                if (this.score > this.highScore) {
+                    this.gameOverText.textContent += '\n新纪录!';
+                }
+            }
+        }
+        
+        // 初始化游戏
+        let game;
+        
+        window.addEventListener('load', () => {
+            game = new CrushGame();
+        });
+        
+        function restartGame() {
+            game.resetPlayerPosition();
+            game.selectRandomShape();
+            game.score = 0;
+            game.gameSpeed = 2000;
+            game.updateScore();
+            game.gameStatus.textContent = '夹缝求生';
+            game.startBtn.style.display = 'block';
+            game.gameOver.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

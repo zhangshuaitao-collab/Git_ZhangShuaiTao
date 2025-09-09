@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "快速点击助手",
+  "version": "1.0",
+  "description": "快速点击网页按钮的浏览器扩展",
+  
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "快速点击助手"
+  },
+  
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  
+  "web_accessible_resources": [
+    {
+      "resources": ["popup.css"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

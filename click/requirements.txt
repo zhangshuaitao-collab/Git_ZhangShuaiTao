@@ -1,0 +1,43 @@
+# 快速点击助手 - Python依赖库列表
+# 安装命令: pip install -r requirements.txt
+
+# GUI框架（内置，通常不需要单独安装）
+# tkinter - Python内置GUI库
+
+# 自动化相关
+pyautogui>=0.9.54          # 鼠标键盘自动化
+pygetwindow>=0.0.9         # 窗口管理（pyautogui依赖）
+
+# Windows系统API
+pywin32>=306               # Windows API调用
+# 注意：Linux用户请改用 python3-xlib
+
+# 图像处理
+Pillow>=9.5.0             # 图像处理和截图
+opencv-python>=4.7.1      # 计算机视觉（可选，用于图像识别）
+
+# 系统信息
+psutil>=5.9.5             # 系统和进程信息
+
+# 数据处理
+numpy>=1.24.3             # 数值计算（opencv依赖）
+
+# 日志和配置
+configparser             # 配置文件处理（Python内置）
+pathlib                  # 路径操作（Python 3.4+内置）
+
+# 开发工具（可选）
+# pytest>=7.3.1          # 单元测试
+# black>=23.3.0           # 代码格式化
+# flake8>=6.0.0           # 代码检查
+
+# 打包工具（可选）
+# PyInstaller>=5.13.0     # 打包为exe
+# cx-Freeze>=6.15.6       # 跨平台打包
+# auto-py-to-exe>=2.38.0  # PyInstaller GUI界面
+
+# 注意事项：
+# 1. Windows用户建议安装：pip install pywin32 pyautogui Pillow psutil
+# 2. Linux用户需要额外安装：sudo apt-get install python3-tk python3-dev
+# 3. macOS用户可能需要：brew install python-tk
+# 4. 如果安装pywin32失败，可以从这里下载：https://github.com/mhammond/pywin32/releases

@@ -1,0 +1,296 @@
+/* popup.css - 扩展弹出窗口样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 380px;
+    height: 600px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    font-size: 14px;
+    color: #333;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.container {
+    padding: 20px;
+    background: white;
+    margin: 10px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    min-height: 560px;
+    max-height: 560px;
+    overflow-y: auto;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.header h2 {
+    color: #2c3e50;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.section h3 {
+    color: #495057;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.primary-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 10px;
+}
+
+.primary-btn:hover {
+    background: linear-gradient(45deg, #5a67d8, #6b46c1);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.primary-btn:active {
+    opacity: 0.9;
+}
+
+.secondary-btn {
+    width: 100%;
+    padding: 10px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 8px;
+}
+
+.secondary-btn:hover {
+    background: #5a6268;
+}
+
+.setting-row {
+    margin-bottom: 12px;
+}
+
+.setting-row label {
+    display: block;
+    margin-bottom: 5px;
+    color: #495057;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.setting-row input,
+.setting-row select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+    background: white;
+}
+
+.setting-row input:focus,
+.setting-row select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.control-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.start-btn {
+    padding: 12px;
+    background: linear-gradient(45deg, #28a745, #20c997);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.start-btn:hover:not(:disabled) {
+    background: linear-gradient(45deg, #218838, #1e7e34);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+}
+
+.start-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.stop-btn {
+    padding: 12px;
+    background: linear-gradient(45deg, #dc3545, #fd7e14);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.stop-btn:hover:not(:disabled) {
+    background: linear-gradient(45deg, #c82333, #e0a800);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+}
+
+.stop-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.status {
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 8px;
+    background: #e9ecef;
+    color: #495057;
+    border: 1px solid #dee2e6;
+}
+
+.status.success {
+    background: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
+}
+
+.status.error {
+    background: #f8d7da;
+    color: #721c24;
+    border-color: #f5c6cb;
+}
+
+.status.warning {
+    background: #fff3cd;
+    color: #856404;
+    border-color: #ffeaa7;
+}
+
+.status.info {
+    background: #cce7ff;
+    color: #004085;
+    border-color: #b3d7ff;
+}
+
+.click-counter {
+    text-align: center;
+    font-weight: 600;
+    color: #495057;
+    padding: 8px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.selected-info {
+    margin-top: 10px;
+    padding: 10px;
+    background: #e3f2fd;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #1565c0;
+    border: 1px solid #bbdefb;
+    min-height: 20px;
+}
+
+.selected-info code {
+    background: #f5f5f5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #d63384;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #e9ecef;
+}
+
+.footer small {
+    color: #6c757d;
+    font-size: 12px;
+}
+
+/* 动画效果 - 简化以防止颤抖 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.container {
+    animation: fadeIn 0.2s ease-out;
+}
+
+.section {
+    /* 移除hover动画以防止颤抖 */
+}
+
+/* 响应式设计 - 移除以防止窗口大小冲突 */
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}

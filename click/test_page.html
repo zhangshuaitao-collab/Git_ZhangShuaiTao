@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快速点击助手 - 测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .test-section h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        
+        button, input[type="submit"], .btn {
+            padding: 12px 24px;
+            margin: 8px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+        }
+        
+        button:hover, input[type="submit"]:hover, .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(45deg, #6c757d, #5a6268);
+            border-color: #6c757d;
+        }
+        
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border-color: #28a745;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(45deg, #ffc107, #fd7e14);
+            border-color: #ffc107;
+            color: #333;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+            border-color: #dc3545;
+        }
+        
+        .clickable-div {
+            padding: 15px;
+            margin: 10px;
+            background: #e7f3ff;
+            border: 2px dashed #007bff;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .clickable-div:hover {
+            background: #cce7ff;
+            transform: scale(1.05);
+        }
+        
+        .form-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        
+        input[type="text"], input[type="email"], textarea {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 200px;
+        }
+        
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .click-counter {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="click-counter" id="clickCounter">点击计数: 0</div>
+    
+    <div class="container">
+        <h1>🖱️ 快速点击助手测试页面</h1>
+        
+        <div class="instructions">
+            <strong>📋 测试说明：</strong>
+            <ol>
+                <li>点击浏览器工具栏中的扩展图标</li>
+                <li>点击"选择要点击的按钮"开始选择模式</li>
+                <li>在下面的按钮上移动鼠标，观察高亮效果</li>
+                <li>点击任一按钮完成选择</li>
+                <li>设置点击间隔和次数，然后开始自动点击测试</li>
+            </ol>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎯 基础按钮测试</h3>
+            <button onclick="handleClick(this, '基础按钮')">基础按钮</button>
+            <button class="btn-secondary" onclick="handleClick(this, '次要按钮')">次要按钮</button>
+            <button class="btn-success" onclick="handleClick(this, '成功按钮')">成功按钮</button>
+            <button class="btn-warning" onclick="handleClick(this, '警告按钮')">警告按钮</button>
+            <button class="btn-danger" onclick="handleClick(this, '危险按钮')">危险按钮</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔗 链接和可点击元素</h3>
+            <a href="#" class="btn" onclick="handleClick(this, '链接按钮'); return false;">链接按钮</a>
+            <div class="clickable-div" onclick="handleClick(this, '可点击DIV')">可点击 DIV</div>
+            <div class="clickable-div" onclick="handleClick(this, '另一个DIV')">另一个 DIV</div>
+            <span style="padding: 10px; background: #ffeaa7; border-radius: 4px; cursor: pointer; margin: 5px; display: inline-block;" 
+                  onclick="handleClick(this, 'SPAN元素')">点击这个 SPAN</span>
+        </div>
+        
+        <div class="test-section">
+            <h3>📝 表单元素测试</h3>
+            <div class="form-section">
+                <input type="text" placeholder="文本输入框" onclick="handleClick(this, '文本框')">
+                <input type="email" placeholder="邮箱输入框" onclick="handleClick(this, '邮箱框')">
+                <br>
+                <textarea placeholder="文本区域" onclick="handleClick(this, '文本区域')" rows="3" cols="30"></textarea>
+                <br>
+                <input type="submit" value="提交按钮" onclick="handleClick(this, '提交按钮'); return false;">
+                <input type="button" value="普通按钮" onclick="handleClick(this, '普通按钮')">
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎲 批量选择测试区域</h3>
+            <p>这个区域有多个相似的按钮，适合测试批量选择功能：</p>
+            <button onclick="handleClick(this, '按钮1')">按钮 1</button>
+            <button onclick="handleClick(this, '按钮2')">按钮 2</button>
+            <button onclick="handleClick(this, '按钮3')">按钮 3</button>
+            <button onclick="handleClick(this, '按钮4')">按钮 4</button>
+            <button onclick="handleClick(this, '按钮5')">按钮 5</button>
+            <br><br>
+            <button onclick="handleClick(this, '按钮A')">按钮 A</button>
+            <button onclick="handleClick(this, '按钮B')">按钮 B</button>
+            <button onclick="handleClick(this, '按钮C')">按钮 C</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>📊 测试结果</h3>
+            <div id="testResults" style="background: white; padding: 15px; border-radius: 4px; border: 1px solid #ddd; min-height: 100px;">
+                <em>点击记录将显示在这里...</em>
+            </div>
+            <br>
+            <button onclick="clearResults()" class="btn-warning">清除记录</button>
+            <button onclick="downloadResults()" class="btn-success">下载测试结果</button>
+        </div>
+    </div>
+    
+    <script>
+        let clickCount = 0;
+        let clickHistory = [];
+        
+        function handleClick(element, name) {
+            clickCount++;
+            const timestamp = new Date().toLocaleTimeString();
+            const clickInfo = {
+                count: clickCount,
+                name: name,
+                tagName: element.tagName,
+                className: element.className || '无',
+                time: timestamp
+            };
+            
+            clickHistory.push(clickInfo);
+            
+            // 更新点击计数器
+            document.getElementById('clickCounter').textContent = `点击计数: ${clickCount}`;
+            
+            // 更新测试结果
+            updateTestResults();
+            
+            // 视觉反馈
+            element.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                element.style.transform = '';
+            }, 150);
+            
+            console.log(`点击了: ${name} (${element.tagName})`);
+        }
+        
+        function updateTestResults() {
+            const resultsDiv = document.getElementById('testResults');
+            const recentClicks = clickHistory.slice(-10).reverse(); // 显示最近10次点击
+            
+            let html = '<strong>最近点击记录：</strong><br>';
+            recentClicks.forEach(click => {
+                html += `<div style="margin: 5px 0; padding: 5px; background: #f8f9fa; border-radius: 3px;">
+                    <strong>#${click.count}</strong> ${click.name} 
+                    <small>(${click.tagName}, ${click.time})</small>
+                </div>`;
+            });
+            
+            if (clickCount > 10) {
+                html += `<small><em>... 共 ${clickCount} 次点击</em></small>`;
+            }
+            
+            resultsDiv.innerHTML = html;
+        }
+        
+        function clearResults() {
+            clickCount = 0;
+            clickHistory = [];
+            document.getElementById('clickCounter').textContent = '点击计数: 0';
+            document.getElementById('testResults').innerHTML = '<em>记录已清除</em>';
+        }
+        
+        function downloadResults() {
+            const data = {
+                totalClicks: clickCount,
+                history: clickHistory,
+                timestamp: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `click-test-results-${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // 页面加载完成后的提示
+        window.addEventListener('load', function() {
+            console.log('测试页面已加载，可以开始测试快速点击助手扩展了！');
+            console.log('提示：打开扩展 -> 选择要点击的按钮 -> 在页面上选择元素 -> 设置并开始自动点击');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文字排序游戏 - 倒装句挑战</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- 游戏标题 -->
+        <div class="header">
+            <h1>文字排序游戏</h1>
+            <p class="subtitle">拖动文字重新排序，创造倒装句效果</p>
+        </div>
+
+        <!-- 游戏状态栏 -->
+        <div class="game-status">
+            <div class="level-info">
+                第 <span id="current-level">1</span> 关 / 共 <span id="total-levels">10</span> 关
+            </div>
+            <div class="timer">
+                计时: <span id="timer-display">00:00</span>
+            </div>
+        </div>
+
+        <!-- 游戏区域 -->
+        <div class="game-area">
+            <!-- 原句展示 -->
+            <div class="original-sentence">
+                <h3>原句：</h3>
+                <p id="original-text"></p>
+            </div>
+
+            <!-- 目标效果说明 -->
+            <div class="target-info">
+                <h3>目标：</h3>
+                <p id="target-description"></p>
+            </div>
+
+            <!-- 拖拽区域 -->
+            <div class="drag-area">
+                <h3>拖动下方文字重新排序：</h3>
+                <div id="drag-container" class="drag-container">
+                    <!-- 动态生成的可拖拽文字块 -->
+                </div>
+            </div>
+
+            <!-- 放置区域 -->
+            <div class="drop-area">
+                <h3>您的排序：</h3>
+                <div id="drop-zone" class="drop-zone">
+                    <div class="placeholder">拖动文字到这里</div>
+                </div>
+            </div>
+
+            <!-- 控制按钮 -->
+            <div class="controls">
+                <button id="check-answer" class="btn btn-primary" disabled>检查答案</button>
+                <button id="reset-level" class="btn btn-secondary">重置本关</button>
+                <button id="restart-game" class="btn btn-warning">重新开始</button>
+            </div>
+        </div>
+
+        <!-- 排行榜 -->
+        <div class="leaderboard">
+            <h3>排行榜</h3>
+            <div id="leaderboard-list" class="leaderboard-list">
+                <!-- 动态生成排行榜内容 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗模态框 -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modal-title"></h2>
+            <p id="modal-message"></p>
+            <div id="modal-buttons" class="modal-buttons">
+                <!-- 动态生成按钮 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

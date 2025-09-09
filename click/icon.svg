@@ -1,0 +1,27 @@
+<svg width="128" height="128" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景圆形 -->
+  <circle cx="64" cy="64" r="60" fill="url(#gradient)" stroke="#fff" stroke-width="4"/>
+  
+  <!-- 鼠标光标 -->
+  <g transform="translate(40,35)">
+    <!-- 鼠标指针 -->
+    <path d="M0,0 L0,35 L10,27 L18,40 L25,35 L17,22 L30,22 Z" fill="#fff" stroke="#333" stroke-width="1"/>
+  </g>
+  
+  <!-- 点击效果圆圈 -->
+  <circle cx="80" cy="80" r="15" fill="none" stroke="#fff" stroke-width="3" opacity="0.8"/>
+  <circle cx="80" cy="80" r="10" fill="none" stroke="#fff" stroke-width="2" opacity="0.6"/>
+  <circle cx="80" cy="80" r="5" fill="#fff" opacity="0.9"/>
+  
+  <!-- 闪电图标表示快速 -->
+  <g transform="translate(45,70)">
+    <path d="M12,0 L0,12 L8,12 L4,20 L16,8 L8,8 Z" fill="#ffd700" stroke="#333" stroke-width="0.5"/>
+  </g>
+</svg>

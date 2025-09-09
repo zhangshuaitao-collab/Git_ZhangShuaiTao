@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>儿歌音律师 - 儿歌旋律填空挑战</title>
+    
+    <!-- 游戏图标 -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIOiDjOaZr+iDjOaZryAtLT4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI2IiBmaWxsPSIjNjY3ZWVhIi8+CiAgCiAgPCEtLSDpkoljoo7pm75rZXlzIC0tPgogIDxyZWN0IHg9IjQiIHk9IjIwIiB3aWR0aD0iMyIgaGVpZ2h0PSI4IiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjgiIHk9IjIwIiB3aWR0aD0iMyIgaGVpZ2h0PSI4IiBmaWxsPSJibGFjayIvPgogIDxyZWN0IHg9IjEyIiB5PSIyMCIgd2lkdGg9IjMiIGhlaWdodD0iOCIgZmlsbD0id2hpdGUiLz4KICA8cmVjdCB4PSIxNiIgeT0iMjAiIHdpZHRoPSIzIiBoZWlnaHQ9IjgiIGZpbGw9ImJsYWNrIi8+CiAgPHJlY3QgeD0iMjAiIHk9IjIwIiB3aWR0aD0iMyIgaGVpZ2h0PSI4IiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjI0IiB5PSIyMCIgd2lkdGg9IjMiIGhlaWdodD0iOCIgZmlsbD0iYmxhY2siLz4KICA8cmVjdCB4PSIyOCIgeT0iMjAiIHdpZHRoPSIzIiBoZWlnaHQ9IjgiIGZpbGw9IndoaXRlIi8+CiAgCiAgPCEtLSDpn7PnrKYgLS0+CiAgPGNpcmNsZSBjeD0iMTAiIGN5PSIxMCIgcj0iMyIgZmlsbD0iIzFFRjZGRiIvPgogIDxlbGxpcHNlIGN4PSIxNCIgY3k9IjYiIHJ4PSIyLjUiIHJ5PSIxLjUiIGZpbGw9IiMxRUY2RkYiLz4KICA8Y2lyY2xlIGN4PSIyMiIgY3k9IjgiIHI9IjIuNSIgZmlsbD0iI0ZGRkYwMCIvPgogIDxlbGxpcHNlIGN4PSIyNiIgY3k9IjEyIiByeD0iMiIgcnk9IjEuNSIgZmlsbD0iI0ZGRkYwMCIvPgo8L3N2Zz4K">
+    <link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIOiDjOaZr+iDjOaZryAtLT4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI2IiBmaWxsPSIjNjY3ZWVhIi8+CiAgCiAgPCEtLSDpkoljoo7pm75rZXlzIC0tPgogIDxyZWN0IHg9IjQiIHk9IjIwIiB3aWR0aD0iMyIgaGVpZ2h0PSI4IiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjgiIHk9IjIwIiB3aWR0aD0iMyIgaGVpZ2h0PSI4IiBmaWxsPSJibGFjayIvPgogIDxyZWN0IHg9IjEyIiB5PSIyMCIgd2lkdGg9IjMiIGhlaWdodD0iOCIgZmlsbD0id2hpdGUiLz4KICA8cmVjdCB4PSIxNiIgeT0iMjAiIHdpZHRoPSIzIiBoZWlnaHQ9IjgiIGZpbGw9ImJsYWNrIi8+CiAgPHJlY3QgeD0iMjAiIHk9IjIwIiB3aWR0aD0iMyIgaGVpZ2h0PSI4IiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjI0IiB5PSIyMCIgd2lkdGg9IjMiIGhlaWdodD0iOCIgZmlsbD0iYmxhY2siLz4KICA8cmVjdCB4PSIyOCIgeT0iMjAiIHdpZHRoPSIzIiBoZWlnaHQ9IjgiIGZpbGw9IndoaXRlIi8+CiAgCiAgPCEtLSDpn7PnrKYgLS0+CiAgPGNpcmNsZSBjeD0iMTAiIGN5PSIxMCIgcj0iMyIgZmlsbD0iIzFFRjZGRiIvPgogIDxlbGxpcHNlIGN4PSIxNCIgY3k9IjYiIHJ4PSIyLjUiIHJ5PSIxLjUiIGZpbGw9IiMxRUY2RkYiLz4KICA8Y2lyY2xlIGN4PSIyMiIgY3k9IjgiIHI9IjIuNSIgZmlsbD0iI0ZGRkYwMCIvPgogIDxlbGxpcHNlIGN4PSIyNiIgY3k9IjEyIiByeD0iMiIgcnk9IjEuNSIgZmlsbD0iI0ZGRkYwMCIvPgo8L3N2Zz4K">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            padding: 15px 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+
+        .level-info, .song-info, .timer-info, .score-info {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .song-info {
+            color: #ffc107;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .game-area {
+            background: rgba(255,255,255,0.15);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(15px);
+            margin-bottom: 30px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .instructions {
+            font-size: 1em;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            max-width: 800px;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .instructions h3 {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .instructions p {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .piano-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            min-height: 150px;
+            align-items: center;
+            padding: 15px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .piano-container.drag-over {
+            background: rgba(76, 175, 80, 0.1);
+            border: 2px dashed #4CAF50;
+            transform: scale(1.02);
+        }
+
+        .piano-key {
+            width: 80px;
+            height: 120px;
+            background: linear-gradient(to bottom, #ffffff, #f0f0f0);
+            border: 3px solid #333;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+            transition: all 0.2s ease;
+            user-select: none;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .piano-key:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+
+        .piano-key.active, .ref-note.active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            background: linear-gradient(to bottom, #f0f0f0, #e0e0e0);
+        }
+
+        .ref-note.active {
+            background: rgba(76, 175, 80, 0.5) !important;
+            transform: scale(1.05);
+        }
+
+        .piano-key.dragging {
+            opacity: 0.8;
+            transform: rotate(5deg);
+            z-index: 1000;
+        }
+
+        .drop-zone {
+            width: 100%;
+            min-height: 150px;
+            border: 3px dashed rgba(255,255,255,0.5);
+            border-radius: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .drop-zone.drag-over {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .blank-position.drag-over .blank-slot {
+            background: rgba(76, 175, 80, 0.3) !important;
+            border-color: #4CAF50 !important;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+        }
+
+        .filled-note.dragging {
+            opacity: 0.8;
+            transform: scale(1.1) rotate(3deg);
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #ff9800, #f57c00);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            color: #333;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .leaderboard {
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .celebration {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3em;
+            z-index: 1500;
+            animation: celebrate 2s ease-in-out;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.5); }
+        }
+
+        @media (max-width: 768px) {
+            .game-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .piano-key {
+                width: 60px;
+                height: 90px;
+                font-size: 14px;
+            }
+            
+            .title {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1 class="title">🎹🎵 儿歌音律师 🎶✨</h1>
+            <p style="font-size: 1.2em; margin-bottom: 15px; opacity: 0.9;">儿歌旋律填空挑战</p>
+            <div class="game-info">
+                <div class="level-info">关卡: <span id="current-level">1</span>/5</div>
+                <div class="song-info">♪ <span id="current-song">小星星</span></div>
+                <div class="timer-info">时间: <span id="timer">00:00</span></div>
+                <div class="score-info">键位数量: <span id="key-count">3</span></div>
+            </div>
+            
+            <div class="lyrics-panel" style="
+                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                border: 2px solid #4CAF50;
+                border-radius: 15px;
+                padding: 15px;
+                margin: 15px 0;
+                text-align: center;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            ">
+                <h4 style="color: #2196F3; margin: 0 0 10px 0; font-size: 16px;">🎵 当前段落歌词</h4>
+                <div id="lyrics-display" style="
+                    font-size: 18px;
+                    line-height: 1.6;
+                    color: #333;
+                    font-weight: 500;
+                    letter-spacing: 1px;
+                ">
+                    [歌词将在此显示]
+                </div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="instructions">
+                <h3 style="margin-bottom: 15px; color: #fff;">🎵 游戏目标</h3>
+                <p style="margin-bottom: 10px;">通过听觉识别钢琴键的音高，将它们按从低到高的顺序正确排列</p>
+                
+                <h3 style="margin-bottom: 10px; margin-top: 15px; color: #fff;">🎮 操作说明</h3>
+                <p style="margin-bottom: 8px;">• 点击钢琴键试听音高</p>
+                <p style="margin-bottom: 8px;">• 拖拽钢琴键到下方排序区域</p>
+                <p style="margin-bottom: 8px;">• 从排序区域拖出即可返回上方</p>
+                <p style="margin-bottom: 8px;">• 使用"播放排序"试听当前顺序</p>
+                
+                <h3 style="margin-bottom: 10px; margin-top: 15px; color: #fff;">✨ 游戏特色</h3>
+                <p style="margin-bottom: 8px;">• 5关递进挑战，从简单到复杂的儿歌片段</p>
+                <p style="margin-bottom: 8px;">• 每关音高独一无二，提升辨音能力</p>
+                <p style="margin-bottom: 8px;">• 实时计时排行榜，挑战个人极限</p>
+                <p style="margin-bottom: 8px;">• 专业音感训练，适合音乐学习者</p>
+            </div>
+            
+            <div class="piano-container" id="piano-container">
+                <!-- 钢琴键将在这里动态生成 -->
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-warning" id="hint-btn">💡 提示</button>
+                <button class="btn btn-primary" id="check-btn">检查答案</button>
+                <button class="btn btn-danger" id="restart-btn">重新开始</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏完成模态框 -->
+    <div class="modal" id="game-complete-modal">
+        <div class="modal-content">
+            <h2>🎉 恭喜通关！</h2>
+            <p>您完成了所有5关！</p>
+            <p>总用时: <span id="final-time"></span></p>
+            <div class="leaderboard" id="leaderboard">
+                <h3>排行榜:</h3>
+            </div>
+            <button class="btn btn-primary" onclick="startNewGame()">重新挑战</button>
+        </div>
+    </div>
+
+    <!-- 关卡完成模态框 -->
+    <div class="modal" id="level-complete-modal">
+        <div class="modal-content">
+            <h2>🎊 关卡完成！</h2>
+            <p>准备进入下一关</p>
+            <button class="btn btn-primary" onclick="nextLevel()">下一关</button>
+        </div>
+    </div>
+
+    <!-- 庆祝动画 -->
+    <div class="celebration" id="celebration">🎉</div>
+
+    <script>
+        class PianoSortGame {
+            constructor() {
+                this.currentLevel = 1;
+                this.maxLevel = 5;
+                this.startTime = null;
+                this.gameRunning = false;
+                this.audioContext = null;
+                this.currentKeys = [];
+                this.currentSong = null;
+                this.blankPositions = [];
+                this.songs = this.initSongDatabase();
+                
+                // 让游戏实例可以全局访问
+                window.game = this;
+                
+                this.initAudio();
+                this.bindEvents();
+                this.startNewGame();
+            }
+
+            initSongDatabase() {
+                return [
+                    {
+                        name: "小星星",
+                        melody: [1, 1, 5, 5, 6, 6, 5, 0, 4, 4, 3, 3, 2, 2, 1],
+                        lyrics: ["do", "do", "sol", "sol", "la", "la", "sol", "休", "fa", "fa", "mi", "mi", "re", "re", "do"],
+                        displayLyrics: "一闪一闪亮晶晶，满天都是小星星"
+                    },
+                    {
+                        name: "生日快乐",
+                        melody: [
+                            {note: 5, octave: -1}, {note: 5, octave: -1}, {note: 6, octave: -1}, {note: 5, octave: -1}, 
+                            {note: 1, octave: 0}, {note: 7, octave: -1}, 0, 
+                            {note: 5, octave: -1}, {note: 5, octave: -1}, {note: 6, octave: -1}, {note: 5, octave: -1}, 
+                            {note: 2, octave: 0}, {note: 1, octave: 0}
+                        ],
+                        lyrics: ["soḻ", "soḻ", "la̱", "soḻ", "do", "ti", "休", "sol", "sol", "la", "sol", "re", "do"],
+                        displayLyrics: "祝你生日快乐，祝你生日快乐"
+                    },
+                    {
+                        name: "两只老虎",
+                        melody: [1, 2, 3, 1, 0, 1, 2, 3, 1, 0, 3, 4, 5, 0, 3, 4, 5, 0, 5, 6, 5, 4, 3, 1, 0, 5, 6, 5, 4, 3, 1],
+                                                 lyrics: ["do", "re", "mi", "do", "休", "do", "re", "mi", "do", "休", "mi", "fa", "sol", "休", "mi", "fa", "sol", "休", "sol", "la", "sol", "fa", "mi", "do", "休", "sol", "la", "sol", "fa", "mi", "do"],
+                        displayLyrics: "两只老虎，两只老虎，跑得快，跑得快"
+                    },
+                    {
+                        name: "小毛驴",
+                        melody: [{note: 1, octave: 0},{note: 1, octave: 0},{note: 1, octave: 0},{note: 3, octave: 0}, {note: 5, octave: 0},{note: 5, octave: 0},{note: 5, octave: 0},{note: 5, octave: 0},{note: 6, octave: 0},{note: 6, octave: 0},{note: 6, octave: 0},{note: 1, octave: 1},{note: 5, octave: 0},0,
+                        {note: 4, octave: 0},{note: 4, octave: 0},{note: 4, octave: 0},{note: 6, octave: 0}, {note: 3, octave: 0},{note: 3, octave: 0},{note: 3, octave: 0},{note: 3, octave: 0},{note: 2, octave: 0},{note: 2, octave: 0},{note: 2, octave: 0},{note: 2, octave: 0},{note: 5, octave: 0},
+                        ],
+                        lyrics: ["do", "do", "do", "mi", "sol", "sol", "sol", "sol", "la", "la", "la", "do", "sol","休", "fa", "fa", "fa", "la", "mi", "mi", "mi", "mi", "re", "re", "re", "re", "soḻ"],
+                        displayLyrics: "我有一个小毛驴我从来也不骑，有一天我心血来潮骑着去赶集"
+                    },
+                    {
+                        name: "拔萝卜",
+                        melody: [{note: 5, octave: -1},{note: 6, octave: -1},1,0,3,2,1,0,5,5,5,5,0,1,2,1,0,5,5,5,5,0,1,2,1,0,5,5,1,0,5,5,1,0,5,5,5,3,2,0,1,2,1],
+                                                 lyrics: ["soḻ", "la̱", "do", "休", "mi", "re", "do", "休", "sol", "sol", "sol", "sol", "休", "do", "re", "do", "休", "sol", "sol", "sol", "sol", "休", "do", "re", "do", "休", "sol", "sol", "do", "休", "sol", "sol", "do", "休", "sol", "sol", "sol", "mi", "re", "休", "do", "re", "do"],
+                        displayLyrics: "拔萝卜，拔萝卜，嘿咻嘿咻，拔萝卜，嘿咻嘿咻拔不动，小黄狗，快快来，快来帮我们拔萝卜"
+                    }
+                ];
+            }
+
+            async initAudio() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    console.log('AudioContext created, state:', this.audioContext.state);
+                } catch (error) {
+                    console.warn('Web Audio API not supported:', error);
+                }
+            }
+
+            async ensureAudioContext() {
+                if (!this.audioContext) {
+                    await this.initAudio();
+                }
+                
+                if (this.audioContext && this.audioContext.state === 'suspended') {
+                    console.log('Resuming AudioContext...');
+                    await this.audioContext.resume();
+                    console.log('AudioContext resumed, state:', this.audioContext.state);
+                }
+            }
+
+
+
+            bindEvents() {
+                document.getElementById('check-btn').addEventListener('click', () => this.checkOrder());
+                document.getElementById('restart-btn').addEventListener('click', () => this.startNewGame());
+                document.getElementById('hint-btn').addEventListener('click', () => this.playHintMelody());
+                
+                // 拖拽事件
+                document.addEventListener('dragstart', (e) => this.handleDragStart(e));
+                document.addEventListener('dragover', (e) => this.handleDragOver(e));
+                document.addEventListener('drop', (e) => this.handleDrop(e));
+                document.addEventListener('dragend', (e) => this.handleDragEnd(e));
+            }
+
+            // 将简谱数字转换为频率 (C大调，支持高低音)
+            noteToFrequency(noteData) {
+                // 支持传入数字或对象格式
+                let note, octave = 0;
+                if (typeof noteData === 'object' && noteData !== null) {
+                    note = noteData.note;
+                    octave = noteData.octave || 0;
+                } else {
+                    note = noteData;
+                    octave = 0;
+                }
+                
+                const baseFreq = 261.63; // C4 (do)
+                const noteMap = {
+                    1: 0,   // do (C)
+                    2: 2,   // re (D)
+                    3: 4,   // mi (E)
+                    4: 5,   // fa (F)
+                    5: 7,   // sol (G)
+                    6: 9,   // la (A)
+                    7: 11   // ti (B)
+                };
+                
+                const semitones = noteMap[note];
+                if (semitones === undefined) {
+                    console.warn('Invalid note:', note);
+                    return 261.63; // 默认返回C4
+                }
+                
+                // 加上八度偏移：-1表示低八度，0表示标准八度，1表示高八度
+                const frequency = baseFreq * Math.pow(2, (semitones + octave * 12) / 12);
+                return frequency;
+            }
+
+            startNewGame() {
+                this.currentLevel = 1;
+                this.startTime = Date.now();
+                this.gameRunning = true;
+                this.updateTimer();
+                this.generateLevel();
+            }
+
+            generateLevel() {
+                const currentSong = this.songs[this.currentLevel - 1];
+                const melody = currentSong.melody;
+                
+                // 计算需要空缺的音符数量（约30%）
+                const blankCount = Math.max(2, Math.round(melody.length * 0.3));
+                
+                // 随机选择空缺位置
+                this.generateBlankPositions(melody.length, blankCount);
+                
+                document.getElementById('current-level').textContent = this.currentLevel;
+                document.getElementById('current-song').textContent = currentSong.name;
+                document.getElementById('key-count').textContent = blankCount;
+                
+                // 显示当前儿歌信息和旋律
+                this.displaySongInfo(currentSong);
+                
+                // 更新歌词显示面板
+                this.updateLyricsDisplay(currentSong);
+                
+                // 生成需要填空的钢琴键
+                this.generateKeys(currentSong);
+                this.resetMelodyDisplay();
+                
+                // 初始化按钮状态
+                document.getElementById('check-btn').disabled = false;
+            }
+
+            updateLyricsDisplay(song) {
+                const lyricsDisplay = document.getElementById('lyrics-display');
+                lyricsDisplay.textContent = song.displayLyrics;
+            }
+
+            generateBlankPositions(melodyLength, blankCount) {
+                const currentSong = this.songs[this.currentLevel - 1];
+                
+                // 过滤掉休止符位置（melody[i] === 0）
+                const validPositions = [];
+                for (let i = 0; i < melodyLength; i++) {
+                    if (currentSong.melody[i] !== 0) {
+                        validPositions.push(i);
+                    }
+                }
+                
+                // 确保有足够的非休止符位置可供选择
+                const maxBlankCount = Math.min(blankCount, Math.floor(validPositions.length * 0.6));
+                
+                // 随机选择空缺位置（只从非休止符位置中选择）
+                this.blankPositions = [];
+                const availablePositions = [...validPositions];
+                
+                for (let i = 0; i < maxBlankCount; i++) {
+                    const randomIndex = Math.floor(Math.random() * availablePositions.length);
+                    this.blankPositions.push(availablePositions[randomIndex]);
+                    availablePositions.splice(randomIndex, 1);
+                }
+                
+                // 排序空缺位置
+                this.blankPositions.sort((a, b) => a - b);
+                
+                console.log('有效位置:', validPositions);
+                console.log('空缺位置:', this.blankPositions);
+            }
+
+            displaySongInfo(song) {
+                // 在instruction区域显示完整旋律和任务说明
+                const instructionDiv = document.querySelector('.instructions');
+                instructionDiv.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #4CAF50; margin-bottom: 10px;">🎵 完整旋律（空缺位置需要填补）：</h4>
+                        <div id="melody-display" style="display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap;">
+                            <!-- 旋律显示将在这里动态生成 -->
+                        </div>
+                        <button onclick="window.game.playCompleteMelody()" style="
+                            padding: 8px 16px; 
+                            background: #4CAF50; 
+                            color: white; 
+                            border: none; 
+                            border-radius: 15px; 
+                            cursor: pointer;
+                            font-size: 14px;
+                        ">播放完整旋律</button>
+                    </div>
+                    <div>
+                        <h4 style="color: #FF9800; margin-bottom: 10px;">任务：填补空缺音符</h4>
+                        <p style="opacity: 0.9; font-size: 0.9em;">将下方的音符拖拽到旋律中的空缺位置</p>
+                        <p style="opacity: 0.8; font-size: 0.85em;">需要填补 ${this.blankPositions.length} 个空缺位置（约30%）</p>
+                    </div>
+                `;
+                
+                // 生成旋律显示
+                this.generateMelodyDisplay(song);
+            }
+
+            generateMelodyDisplay(song) {
+                const melodyDisplay = document.getElementById('melody-display');
+                melodyDisplay.innerHTML = '';
+                
+                song.melody.forEach((note, index) => {
+                    const noteDiv = document.createElement('div');
+                    noteDiv.className = 'melody-note';
+                    
+                    if (note === 0) {
+                        // 休止符位置
+                        noteDiv.innerHTML = `
+                            <div class="rest-note" style="
+                                width: 60px;
+                                height: 80px;
+                                border: 2px solid #9C27B0;
+                                border-radius: 8px;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                background: rgba(156, 39, 176, 0.1);
+                                color: #9C27B0;
+                                font-weight: bold;
+                                text-align: center;
+                                line-height: 1.2;
+                            ">
+                                <div style="font-size: 24px;">♪</div>
+                                <div style="font-size: 10px; opacity: 0.9;">休止</div>
+                            </div>
+                        `;
+                    } else if (this.blankPositions.includes(index)) {
+                        // 空缺位置
+                        noteDiv.classList.add('blank-position');
+                        noteDiv.dataset.position = index;
+                        noteDiv.innerHTML = `
+                            <div class="blank-slot" style="
+                                width: 60px;
+                                height: 80px;
+                                border: 3px dashed #ff9800;
+                                border-radius: 8px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                background: rgba(255, 152, 0, 0.1);
+                                color: #ff9800;
+                                font-size: 12px;
+                                text-align: center;
+                            ">
+                                ?<br/>空缺
+                            </div>
+                        `;
+                    } else {
+                        // 已知音符 - 处理高低音显示
+                        const noteValue = typeof note === 'object' ? note.note : note;
+                        const octave = typeof note === 'object' ? note.octave || 0 : 0;
+                        
+                        // 生成八度标识
+                        let octaveDisplay = '';
+                        if (octave === -1) {
+                            octaveDisplay = '<div style="font-size: 8px; color: #ff5722;">●</div>'; // 低音点
+                        } else if (octave === 1) {
+                            octaveDisplay = '<div style="font-size: 8px; color: #ff5722;">●</div>'; // 高音点
+                        }
+                        
+                        const melodyNoteElement = document.createElement('div');
+                        melodyNoteElement.className = 'melody-note-filled';
+                        melodyNoteElement.style.cssText = `
+                            width: 60px;
+                            height: 80px;
+                            background: linear-gradient(to bottom, #e3f2fd, #bbdefb);
+                            border: 2px solid #2196f3;
+                            border-radius: 8px;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            font-weight: bold;
+                            cursor: pointer;
+                            position: relative;
+                        `;
+                        
+                        melodyNoteElement.innerHTML = `
+                            ${octave === 1 ? octaveDisplay : ''}
+                            <div style="font-size: 16px;">${noteValue}</div>
+                            <div style="font-size: 10px; opacity: 0.8;">${song.lyrics[index]}</div>
+                            ${octave === -1 ? octaveDisplay : ''}
+                        `;
+                        
+                        melodyNoteElement.addEventListener('click', () => {
+                            this.playNote(note);
+                            melodyNoteElement.style.transform = 'scale(0.95)';
+                            setTimeout(() => melodyNoteElement.style.transform = 'scale(1)', 150);
+                        });
+                        
+                        noteDiv.appendChild(melodyNoteElement);
+                    }
+                    
+                    melodyDisplay.appendChild(noteDiv);
+                });
+            }
+
+            generateKeys(song) {
+                const container = document.getElementById('piano-container');
+                container.innerHTML = '';
+                
+                this.currentKeys = [];
+                this.currentSong = song;
+                
+                // 基于空缺位置生成需要填空的钢琴键
+                const blankNotes = this.blankPositions.map(pos => ({
+                    note: song.melody[pos],
+                    lyric: song.lyrics[pos],
+                    originalPosition: pos
+                }));
+                
+                // 打乱空缺音符的顺序
+                const shuffledBlankNotes = this.shuffleArray([...blankNotes]);
+                
+                shuffledBlankNotes.forEach((noteInfo, displayIndex) => {
+                    const frequency = this.noteToFrequency(noteInfo.note);
+                    
+                    const key = this.createPianoKey(frequency, displayIndex, noteInfo.originalPosition, noteInfo.note, noteInfo.lyric);
+                    container.appendChild(key);
+                    this.currentKeys.push(key);
+                });
+                
+                console.log('当前儿歌:', song.name);
+                console.log('空缺音符:', blankNotes);
+                console.log('打乱后:', shuffledBlankNotes);
+            }
+
+            createPianoKey(frequency, displayIndex, correctIndex, noteData, lyric) {
+                const key = document.createElement('div');
+                key.className = 'piano-key';
+                key.draggable = true;
+                key.dataset.frequency = frequency;
+                key.dataset.index = displayIndex;
+                key.dataset.correctIndex = correctIndex;
+                key.dataset.keyData = JSON.stringify({
+                    note: noteData,
+                    lyric: lyric,
+                    index: displayIndex,
+                    correctIndex: correctIndex
+                });
+                
+                // 处理高低音显示
+                const noteValue = typeof noteData === 'object' ? noteData.note : noteData;
+                const octave = typeof noteData === 'object' ? noteData.octave || 0 : 0;
+                
+                // 生成八度标识和背景色
+                let octaveIndicator = '';
+                let backgroundColor = '';
+                if (octave === -1) {
+                    octaveIndicator = '̱'; // 下划线表示低音
+                    backgroundColor = 'background: linear-gradient(to bottom, #ffebee, #ffcdd2); border: 2px solid #f44336;';
+                } else if (octave === 1) {
+                    octaveIndicator = '̇'; // 上划线表示高音
+                    backgroundColor = 'background: linear-gradient(to bottom, #e8f5e8, #c8e6c9); border: 2px solid #4caf50;';
+                } else {
+                    backgroundColor = 'background: linear-gradient(to bottom, #fff3e0, #ffe0b2); border: 2px solid #ff9800;';
+                }
+                
+                key.style.cssText = `
+                    width: 80px;
+                    height: 120px;
+                    margin: 5px;
+                    border-radius: 8px;
+                    ${backgroundColor}
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    user-select: none;
+                    transition: all 0.2s ease;
+                    position: relative;
+                `;
+                
+                key.innerHTML = `
+                    <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
+                        ${noteValue}${octaveIndicator}
+                        ${octave === -1 ? '<div style="position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); width: 8px; height: 2px; background: #f44336; border-radius: 1px;"></div>' : ''}
+                        ${octave === 1 ? '<div style="position: absolute; top: -2px; left: 50%; transform: translateX(-50%); width: 8px; height: 2px; background: #4caf50; border-radius: 1px;"></div>' : ''}
+                    </div>
+                    <div style="font-size: 12px; opacity: 0.8;">${lyric}</div>
+                `;
+                
+                key.addEventListener('click', () => {
+                    this.playNote(noteData);
+                    key.classList.add('active');
+                    setTimeout(() => key.classList.remove('active'), 200);
+                });
+                
+                return key;
+            }
+
+            async playNote(noteDataOrFrequency) {
+                try {
+                    await this.ensureAudioContext();
+                    if (!this.audioContext) return;
+                    
+                    // 判断传入的是频率还是音符数据
+                    let frequency;
+                    if (typeof noteDataOrFrequency === 'number' && noteDataOrFrequency > 50) {
+                        // 大于50的数字认为是频率 (音符频率通常在80Hz以上)
+                        frequency = noteDataOrFrequency;
+                    } else {
+                        // 其他情况都当作音符数据处理
+                        frequency = this.noteToFrequency(noteDataOrFrequency);
+                    }
+                    
+                    if (frequency < 20 || frequency > 20000) {
+                        console.warn('Frequency out of audible range:', frequency);
+                        return;
+                    }
+                    
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.8);
+                    
+                    oscillator.start(this.audioContext.currentTime);
+                    oscillator.stop(this.audioContext.currentTime + 0.8);
+                } catch (error) {
+                    console.error('Error playing note:', error);
+                }
+            }
+
+            playReferenceSequence() {
+                if (!this.audioContext || !this.currentSong) return;
+                
+                this.currentSong.reference.forEach((note, index) => {
+                    setTimeout(() => {
+                        const frequency = this.noteToFrequency(note);
+                        this.playNote(frequency);
+                        
+                        // 高亮参考序列中的对应音符
+                        const refNotes = document.querySelectorAll('.ref-note');
+                        if (refNotes[index]) {
+                            refNotes[index].classList.add('active');
+                            setTimeout(() => refNotes[index].classList.remove('active'), 200);
+                        }
+                    }, index * 600);
+                });
+            }
+
+            playCompleteMelody() {
+                if (!this.audioContext || !this.currentSong) return;
+                
+                let playIndex = 0;
+                
+                // 遍历旋律，播放到第一个未填充的空缺位置停止
+                for (let index = 0; index < this.currentSong.melody.length; index++) {
+                    const note = this.currentSong.melody[index];
+                    
+                    if (note === 0) {
+                        // 休止符，跳过播放但保持时间间隔
+                        setTimeout(() => {
+                            // 高亮休止符
+                            const restNotes = document.querySelectorAll('.rest-note');
+                            restNotes.forEach(restElement => {
+                                const parentNote = restElement.closest('.melody-note');
+                                if (parentNote && Array.from(parentNote.parentNode.children).indexOf(parentNote) === index) {
+                                    restElement.style.transform = 'scale(0.95)';
+                                    setTimeout(() => restElement.style.transform = 'scale(1)', 200);
+                                }
+                            });
+                        }, playIndex * 600);
+                        playIndex++;
+                    } else if (this.blankPositions.includes(index)) {
+                        // 是空缺位置，检查是否已填充
+                        const blankSlot = document.querySelector(`.blank-position[data-position="${index}"]`);
+                        const filledNote = blankSlot?.querySelector('.filled-note');
+                        
+                        if (filledNote) {
+                            // 已填充，播放填充的音符
+                            const keyData = JSON.parse(filledNote.dataset.keyData);
+                            setTimeout(() => {
+                                const frequency = this.noteToFrequency(keyData.note);
+                                this.playNote(frequency);
+                                
+                                // 高亮已填充的音符
+                                filledNote.style.transform = 'scale(0.95)';
+                                setTimeout(() => filledNote.style.transform = 'scale(1)', 200);
+                            }, playIndex * 600);
+                            playIndex++;
+                        } else {
+                            // 未填充，停止播放
+                            console.log(`播放在位置 ${index} 停止（空缺未填充）`);
+                            break;
+                        }
+                    } else {
+                        // 已知音符，正常播放
+                        setTimeout(() => {
+                            const frequency = this.noteToFrequency(note);
+                            this.playNote(frequency);
+                            
+                            // 高亮对应的旋律音符
+                            const melodyNotes = document.querySelectorAll('.melody-note-filled');
+                            melodyNotes.forEach(noteElement => {
+                                const parentNote = noteElement.closest('.melody-note');
+                                if (parentNote && Array.from(parentNote.parentNode.children).indexOf(parentNote) === index) {
+                                    noteElement.style.transform = 'scale(0.95)';
+                                    setTimeout(() => noteElement.style.transform = 'scale(1)', 200);
+                                }
+                            });
+                        }, playIndex * 600);
+                        playIndex++;
+                    }
+                }
+            }
+
+            playHintMelody() {
+                if (!this.audioContext || !this.currentSong) return;
+                
+                // 播放完整的正确旋律，包括空缺位置的正确音符
+                let playIndex = 0;
+                this.currentSong.melody.forEach((note, index) => {
+                    if (note === 0) {
+                        // 休止符，跳过播放但保持时间间隔
+                        setTimeout(() => {
+                            // 高亮休止符
+                            const restNotes = document.querySelectorAll('.rest-note');
+                            restNotes.forEach(restElement => {
+                                const parentNote = restElement.closest('.melody-note');
+                                if (parentNote && Array.from(parentNote.parentNode.children).indexOf(parentNote) === index) {
+                                    restElement.style.transform = 'scale(0.95)';
+                                    setTimeout(() => restElement.style.transform = 'scale(1)', 200);
+                                }
+                            });
+                        }, playIndex * 600);
+                        playIndex++;
+                    } else {
+                        // 正常音符
+                        setTimeout(() => {
+                            const frequency = this.noteToFrequency(note);
+                            this.playNote(frequency);
+                        }, playIndex * 600);
+                        playIndex++;
+                    }
+                });
+                
+                // 显示提示信息
+                setTimeout(() => {
+                    alert('💡 这就是完整的正确旋律！\n请仔细听空缺位置的音符，然后进行填补。\n注意句间的停顿！');
+                }, (playIndex + 1) * 600);
+            }
+
+            shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            handleDragStart(e) {
+                if (e.target.classList.contains('piano-key')) {
+                    e.target.classList.add('dragging');
+                    const keyData = JSON.parse(e.target.dataset.keyData);
+                    e.dataTransfer.setData('text/plain', JSON.stringify(keyData));
+                } else if (e.target.classList.contains('filled-note')) {
+                    e.target.classList.add('dragging');
+                    const keyData = JSON.parse(e.target.dataset.keyData);
+                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                        ...keyData,
+                        isFromBlank: true,
+                        sourceBlankPosition: e.target.closest('.blank-position').dataset.position
+                    }));
+                }
+            }
+
+            handleDragOver(e) {
+                e.preventDefault();
+                
+                const blankSlot = e.target.closest('.blank-position');
+                const pianoContainer = e.target.closest('.piano-container');
+                
+                if (blankSlot) {
+                    blankSlot.classList.add('drag-over');
+                    // 移除其他位置的高亮
+                    document.querySelectorAll('.blank-position.drag-over').forEach(slot => {
+                        if (slot !== blankSlot) slot.classList.remove('drag-over');
+                    });
+                    // 移除钢琴容器的高亮
+                    document.getElementById('piano-container').classList.remove('drag-over');
+                } else if (pianoContainer) {
+                    // 拖拽到钢琴键区域，用于从空缺位置拖出
+                    pianoContainer.classList.add('drag-over');
+                    // 移除空缺位置的高亮
+                    document.querySelectorAll('.blank-position').forEach(slot => {
+                        slot.classList.remove('drag-over');
+                    });
+                } else {
+                    // 清除所有高亮
+                    document.querySelectorAll('.blank-position').forEach(slot => {
+                        slot.classList.remove('drag-over');
+                    });
+                    document.getElementById('piano-container').classList.remove('drag-over');
+                }
+            }
+
+            handleDrop(e) {
+                e.preventDefault();
+                
+                try {
+                    const dragData = JSON.parse(e.dataTransfer.getData('text/plain'));
+                    const blankSlot = e.target.closest('.blank-position');
+                    
+                    if (blankSlot) {
+                        // 拖拽到空缺位置
+                        const position = parseInt(blankSlot.dataset.position);
+                        
+                        if (dragData.isFromBlank) {
+                            // 从其他空缺位置拖来的音符
+                            const sourceBlankSlot = document.querySelector(`.blank-position[data-position="${dragData.sourceBlankPosition}"]`);
+                            const sourceFilledNote = sourceBlankSlot?.querySelector('.filled-note');
+                            
+                            // 检查目标位置是否已有音符
+                            const existingNote = blankSlot.querySelector('.filled-note');
+                            if (existingNote) {
+                                // 交换两个位置的音符
+                                const existingKeyData = JSON.parse(existingNote.dataset.keyData);
+                                
+                                // 先清除两个位置
+                                sourceFilledNote?.remove();
+                                existingNote.remove();
+                                
+                                // 重新填充
+                                this.fillBlankPosition(blankSlot, dragData);
+                                this.fillBlankPosition(sourceBlankSlot, existingKeyData);
+                            } else {
+                                // 移动到空的位置
+                                sourceFilledNote?.remove();
+                                this.fillBlankPosition(blankSlot, dragData);
+                                this.clearBlankPosition(sourceBlankSlot);
+                            }
+                        } else {
+                            // 从钢琴键区域拖来的音符
+                            const draggedKey = this.currentKeys[dragData.index];
+                            
+                            // 检查是否已经有音符在这个位置
+                            const existingNote = blankSlot.querySelector('.filled-note');
+                            if (existingNote) {
+                                // 将已有音符移回钢琴键区域
+                                const returnedKeyData = JSON.parse(existingNote.dataset.keyData);
+                                this.returnKeyToPiano(returnedKeyData);
+                                existingNote.remove();
+                            }
+                            
+                            // 将音符放入空缺位置
+                            this.fillBlankPosition(blankSlot, dragData);
+                            
+                            // 隐藏原始钢琴键
+                            draggedKey.style.opacity = '0.3';
+                            draggedKey.style.pointerEvents = 'none';
+                        }
+                        
+                        this.updateFilledPositions();
+                    } else {
+                        // 拖拽到空缺位置外
+                        const pianoContainer = e.target.closest('.piano-container');
+                        
+                        if (dragData.isFromBlank && pianoContainer) {
+                            // 从空缺位置拖到钢琴键区域，恢复音符
+                            const sourceBlankSlot = document.querySelector(`.blank-position[data-position="${dragData.sourceBlankPosition}"]`);
+                            const sourceFilledNote = sourceBlankSlot?.querySelector('.filled-note');
+                            
+                            if (sourceFilledNote) {
+                                // 恢复原始钢琴键
+                                this.returnKeyToPiano(dragData);
+                                
+                                // 清除空缺位置
+                                sourceFilledNote.remove();
+                                this.clearBlankPosition(sourceBlankSlot);
+                                
+                                this.updateFilledPositions();
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('拖拽处理错误:', error);
+                }
+                
+                // 清除所有拖拽样式
+                document.querySelectorAll('.blank-position').forEach(slot => {
+                    slot.classList.remove('drag-over');
+                });
+                document.getElementById('piano-container').classList.remove('drag-over');
+            }
+
+            clearBlankPosition(blankSlot) {
+                blankSlot.innerHTML = `
+                    <div class="blank-slot" style="
+                        width: 60px;
+                        height: 80px;
+                        border: 3px dashed #ff9800;
+                        border-radius: 8px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: rgba(255, 152, 0, 0.1);
+                        color: #ff9800;
+                        font-size: 12px;
+                        text-align: center;
+                    ">
+                        ?<br/>空缺
+                    </div>
+                `;
+            }
+
+            handleDragEnd(e) {
+                if (e.target.classList.contains('piano-key')) {
+                    e.target.classList.remove('dragging');
+                }
+                if (e.target.classList.contains('filled-note')) {
+                    e.target.classList.remove('dragging');
+                }
+                
+                // 清除所有拖拽样式
+                document.querySelectorAll('.blank-position').forEach(slot => {
+                    slot.classList.remove('drag-over');
+                });
+                document.getElementById('piano-container').classList.remove('drag-over');
+            }
+
+            fillBlankPosition(blankSlot, keyData) {
+                // 处理高低音显示
+                const noteValue = typeof keyData.note === 'object' ? keyData.note.note : keyData.note;
+                const octave = typeof keyData.note === 'object' ? keyData.note.octave || 0 : 0;
+                
+                // 生成八度标识和背景色
+                let octaveIndicator = '';
+                let backgroundColor = '';
+                if (octave === -1) {
+                    octaveIndicator = '̱'; // 下划线表示低音
+                    backgroundColor = 'background: linear-gradient(to bottom, #ffebee, #ffcdd2); border: 2px solid #f44336;';
+                } else if (octave === 1) {
+                    octaveIndicator = '̇'; // 上划线表示高音
+                    backgroundColor = 'background: linear-gradient(to bottom, #e8f5e8, #c8e6c9); border: 2px solid #4caf50;';
+                } else {
+                    backgroundColor = 'background: linear-gradient(to bottom, #c8e6c9, #a5d6a7); border: 2px solid #4caf50;';
+                }
+                
+                blankSlot.innerHTML = `
+                    <div class="filled-note" data-key-data='${JSON.stringify(keyData)}' draggable="true" style="
+                        width: 60px;
+                        height: 80px;
+                        ${backgroundColor}
+                        border-radius: 8px;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        font-weight: bold;
+                        cursor: pointer;
+                        position: relative;
+                    ">
+                        ${octave === 1 ? '<div style="position: absolute; top: -2px; left: 50%; transform: translateX(-50%); width: 8px; height: 2px; background: #4caf50; border-radius: 1px;"></div>' : ''}
+                        <div style="font-size: 16px;">${noteValue}${octaveIndicator}</div>
+                        <div style="font-size: 10px; opacity: 0.8;">${keyData.lyric}</div>
+                        ${octave === -1 ? '<div style="position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); width: 8px; height: 2px; background: #f44336; border-radius: 1px;"></div>' : ''}
+                    </div>
+                `;
+                
+                // 为填充的音符添加点击和拖拽事件
+                const filledNote = blankSlot.querySelector('.filled-note');
+                filledNote.addEventListener('click', () => {
+                    this.playNote(keyData.note);
+                    filledNote.style.transform = 'scale(0.95)';
+                    setTimeout(() => filledNote.style.transform = 'scale(1)', 150);
+                });
+                this.addDragEventsToFilledNote(filledNote);
+            }
+
+            addDragEventsToFilledNote(filledNote) {
+                filledNote.addEventListener('dragstart', (e) => {
+                    const keyData = JSON.parse(filledNote.dataset.keyData);
+                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                        ...keyData,
+                        isFromBlank: true,
+                        sourceBlankPosition: filledNote.closest('.blank-position').dataset.position
+                    }));
+                    filledNote.classList.add('dragging');
+                });
+
+                filledNote.addEventListener('dragend', (e) => {
+                    filledNote.classList.remove('dragging');
+                });
+            }
+
+            returnKeyToPiano(keyData) {
+                const originalKey = this.currentKeys[keyData.index];
+                if (originalKey) {
+                    originalKey.style.opacity = '1';
+                    originalKey.style.pointerEvents = 'auto';
+                }
+            }
+
+            updateFilledPositions() {
+                const filledCount = document.querySelectorAll('.filled-note').length;
+                const totalBlanks = this.blankPositions.length;
+                
+                console.log(`已填充 ${filledCount}/${totalBlanks} 个位置`);
+            }
+
+            resetMelodyDisplay() {
+                // 重置所有钢琴键的状态
+                this.currentKeys.forEach(key => {
+                    key.style.opacity = '1';
+                    key.style.pointerEvents = 'auto';
+                });
+                
+                // 清除所有已填充的音符
+                document.querySelectorAll('.filled-note').forEach(note => {
+                    const blankSlot = note.closest('.blank-position');
+                    if (blankSlot) {
+                        blankSlot.innerHTML = `
+                            <div class="blank-slot" style="
+                                width: 60px;
+                                height: 80px;
+                                border: 3px dashed #ff9800;
+                                border-radius: 8px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                background: rgba(255, 152, 0, 0.1);
+                                color: #ff9800;
+                                font-size: 12px;
+                                text-align: center;
+                            ">
+                                ?<br/>空缺
+                            </div>
+                        `;
+                    }
+                });
+                
+                this.updateFilledPositions();
+            }
+
+            checkOrder() {
+                // 检查所有空缺位置是否都已正确填充
+                let allCorrect = true;
+                let filledCount = 0;
+                const totalBlanks = this.blankPositions.length;
+                const wrongPositions = []; // 记录错误的位置
+                
+                for (const position of this.blankPositions) {
+                    const blankSlot = document.querySelector(`.blank-position[data-position="${position}"]`);
+                    const filledNote = blankSlot?.querySelector('.filled-note');
+                    
+                    if (filledNote) {
+                        filledCount++;
+                        const keyData = JSON.parse(filledNote.dataset.keyData);
+                        const expectedNote = this.currentSong.melody[position];
+                        
+                        // 比较音符（支持高低音格式）
+                        const actualNote = keyData.note;
+                        let isCorrect = false;
+                        
+                        if (typeof expectedNote === 'object' && typeof actualNote === 'object') {
+                            // 两者都是对象格式
+                            isCorrect = expectedNote.note === actualNote.note && expectedNote.octave === actualNote.octave;
+                        } else if (typeof expectedNote === 'number' && typeof actualNote === 'number') {
+                            // 两者都是数字格式
+                            isCorrect = expectedNote === actualNote;
+                        } else if (typeof expectedNote === 'object' && typeof actualNote === 'number') {
+                            // 期望是对象，实际是数字（向下兼容）
+                            isCorrect = expectedNote.note === actualNote && (expectedNote.octave || 0) === 0;
+                        } else if (typeof expectedNote === 'number' && typeof actualNote === 'object') {
+                            // 期望是数字，实际是对象（向下兼容）
+                            isCorrect = expectedNote === actualNote.note && (actualNote.octave || 0) === 0;
+                        }
+                        
+                        if (!isCorrect) {
+                            allCorrect = false;
+                            wrongPositions.push({ position, blankSlot, filledNote, keyData });
+                            console.log(`位置 ${position} 错误: 期望 ${JSON.stringify(expectedNote)}, 实际 ${JSON.stringify(actualNote)}`);
+                        }
+                    } else {
+                        allCorrect = false;
+                        console.log(`位置 ${position} 未填充`);
+                    }
+                }
+                
+                console.log(`填充进度: ${filledCount}/${totalBlanks}`);
+                console.log('是否全部正确:', allCorrect);
+                
+                if (filledCount < totalBlanks) {
+                    alert(`还有 ${totalBlanks - filledCount} 个空缺位置未填充，请继续填补！`);
+                } else if (!allCorrect) {
+                    // 自动将错误的音符放回原位
+                    let returnedCount = 0;
+                    wrongPositions.forEach(({ blankSlot, filledNote, keyData }) => {
+                        // 将音符放回钢琴键区域
+                        this.returnKeyToPiano(keyData);
+                        
+                        // 移除填充的音符
+                        filledNote.remove();
+                        
+                        // 清空空缺位置
+                        this.clearBlankPosition(blankSlot);
+                        
+                        returnedCount++;
+                    });
+                    
+                    // 更新填充状态
+                    this.updateFilledPositions();
+                    
+                    alert(`检测到 ${wrongPositions.length} 个音符填错了位置，已自动放回原位！\n\n💡 提示：点击"提示"按钮可以听到正确的旋律`);
+                } else {
+                    // 全部正确
+                    this.showCelebration();
+                    
+                    if (this.currentLevel === this.maxLevel) {
+                        this.completeGame();
+                    } else {
+                        this.completeLevel();
+                    }
+                }
+            }
+
+            showCelebration() {
+                const celebration = document.getElementById('celebration');
+                celebration.style.display = 'block';
+                setTimeout(() => {
+                    celebration.style.display = 'none';
+                }, 2000);
+            }
+
+            completeLevel() {
+                setTimeout(() => {
+                    document.getElementById('level-complete-modal').style.display = 'flex';
+                }, 1000);
+            }
+
+            nextLevel() {
+                document.getElementById('level-complete-modal').style.display = 'none';
+                this.currentLevel++;
+                this.generateLevel();
+            }
+
+            completeGame() {
+                this.gameRunning = false;
+                const totalTime = Date.now() - this.startTime;
+                const timeString = this.formatTime(totalTime);
+                
+                document.getElementById('final-time').textContent = timeString;
+                this.updateLeaderboard(timeString);
+                
+                setTimeout(() => {
+                    document.getElementById('game-complete-modal').style.display = 'flex';
+                }, 1000);
+            }
+
+            updateLeaderboard(newTime) {
+                let scores = JSON.parse(localStorage.getItem('pianoSortScores') || '[]');
+                scores.push({
+                    time: newTime,
+                    timestamp: new Date().toLocaleString()
+                });
+                
+                // 按时间排序（转换为毫秒进行比较）
+                scores.sort((a, b) => {
+                    const timeA = this.timeStringToMs(a.time);
+                    const timeB = this.timeStringToMs(b.time);
+                    return timeA - timeB;
+                });
+                
+                // 只保留前10名
+                scores = scores.slice(0, 10);
+                localStorage.setItem('pianoSortScores', JSON.stringify(scores));
+                
+                this.displayLeaderboard(scores);
+            }
+
+            timeStringToMs(timeString) {
+                const [minutes, seconds] = timeString.split(':').map(Number);
+                return minutes * 60000 + seconds * 1000;
+            }
+
+            displayLeaderboard(scores) {
+                const leaderboard = document.getElementById('leaderboard');
+                leaderboard.innerHTML = '<h3>排行榜:</h3>';
+                
+                scores.forEach((score, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'leaderboard-item';
+                    item.innerHTML = `
+                        <span>${index + 1}. ${score.time}</span>
+                        <span>${score.timestamp}</span>
+                    `;
+                    leaderboard.appendChild(item);
+                });
+            }
+
+            updateTimer() {
+                if (!this.gameRunning) return;
+                
+                const elapsed = Date.now() - this.startTime;
+                const timeString = this.formatTime(elapsed);
+                document.getElementById('timer').textContent = timeString;
+                
+                setTimeout(() => this.updateTimer(), 100);
+            }
+
+            formatTime(ms) {
+                const seconds = Math.floor(ms / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }
+        }
+
+        // 全局函数
+        function startNewGame() {
+            document.getElementById('game-complete-modal').style.display = 'none';
+            new PianoSortGame();
+        }
+
+        function nextLevel() {
+            window.game.nextLevel();
+        }
+
+        // 启动游戏
+        window.addEventListener('load', () => {
+            window.game = new PianoSortGame();
+        });
+    </script>
+</body>
+</html>
