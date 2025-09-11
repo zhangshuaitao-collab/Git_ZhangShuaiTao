@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>决斗游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 50px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23fff" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23fff" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="%23fff" opacity="0.1"/><circle cx="10" cy="60" r="0.8" fill="%23fff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+        }
+
+        .player {
+            width: 600px;
+            height: 900px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .player-avatar {
+            width: 360px;
+            height: 540px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 180px;
+            margin-bottom: 30px;
+            position: relative;
+            transition: all 0.3s ease;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            overflow: hidden;
+        }
+
+        .player1 .player-avatar {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a6f);
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
+        }
+
+        .player2 .player-avatar {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            box-shadow: 0 10px 30px rgba(78, 205, 196, 0.4);
+        }
+
+        .player-name {
+            font-size: 36px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 15px;
+        }
+
+        .player-key {
+            font-size: 24px;
+            color: rgba(255,255,255,0.8);
+            background: rgba(0,0,0,0.3);
+            padding: 12px 24px;
+            border-radius: 25px;
+            border: 3px solid rgba(255,255,255,0.2);
+        }
+
+        /* 西部牛仔样式 */
+        .cowboy {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 帽子 */
+        .hat {
+            width: 180px;
+            height: 80px;
+            background: #2c1810;
+            border-radius: 90px 90px 20px 20px;
+            position: relative;
+            margin-bottom: 10px;
+            border: 4px solid #1a0e08;
+        }
+
+        .hat::before {
+            content: '';
+            position: absolute;
+            width: 240px;
+            height: 20px;
+            background: #2c1810;
+            border-radius: 120px;
+            top: 60px;
+            left: -30px;
+            border: 4px solid #1a0e08;
+        }
+
+        .hat::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 30px;
+            background: #8B4513;
+            border-radius: 20px;
+            top: 20px;
+            left: 70px;
+            border: 2px solid #654321;
+        }
+
+        /* 脸部 */
+        .face {
+            width: 160px;
+            height: 180px;
+            background: #fdbcb4;
+            border-radius: 80px;
+            position: relative;
+            margin-bottom: 20px;
+            border: 3px solid #f4a394;
+        }
+
+        /* 眼睛 */
+        .eyes {
+            display: flex;
+            justify-content: space-between;
+            width: 80px;
+            position: absolute;
+            top: 60px;
+            left: 40px;
+        }
+
+        .eye {
+            width: 25px;
+            height: 25px;
+            background: #333;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .eye::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            top: 5px;
+            left: 5px;
+        }
+
+        /* 胡子 */
+        .mustache {
+            position: absolute;
+            top: 100px;
+            left: 50px;
+            width: 60px;
+            height: 15px;
+            background: #8B4513;
+            border-radius: 30px;
+            transform: rotate(-5deg);
+        }
+
+        .mustache::before {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 15px;
+            background: #8B4513;
+            border-radius: 15px;
+            top: -2px;
+            left: -10px;
+            transform: rotate(20deg);
+        }
+
+        .mustache::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 15px;
+            background: #8B4513;
+            border-radius: 15px;
+            top: -2px;
+            right: -10px;
+            transform: rotate(-20deg);
+        }
+
+        /* 嘴巴 */
+        .mouth {
+            position: absolute;
+            top: 130px;
+            left: 70px;
+            width: 20px;
+            height: 10px;
+            background: #8B0000;
+            border-radius: 10px;
+        }
+
+        /* 身体 */
+        .body {
+            width: 280px;
+            height: 220px;
+            position: relative;
+        }
+
+        /* 马甲 */
+        .vest {
+            width: 200px;
+            height: 180px;
+            background: #8B4513;
+            position: absolute;
+            top: 0;
+            left: 40px;
+            border-radius: 20px 20px 0 0;
+            border: 4px solid #654321;
+        }
+
+        .vest::before {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 60px;
+            background: #FFD700;
+            left: 20px;
+            top: 30px;
+            border-radius: 4px;
+        }
+
+        .vest::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 60px;
+            background: #FFD700;
+            right: 20px;
+            top: 30px;
+            border-radius: 4px;
+        }
+
+        /* 衬衫 */
+        .shirt {
+            width: 120px;
+            height: 100px;
+            background: white;
+            position: absolute;
+            top: 40px;
+            left: 80px;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+        }
+
+        /* 手臂 */
+        .arms {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .arm {
+            width: 60px;
+            height: 120px;
+            background: #fdbcb4;
+            position: absolute;
+            border-radius: 30px;
+            border: 3px solid #f4a394;
+        }
+
+        .left-arm {
+            top: 20px;
+            left: -20px;
+            transform: rotate(-30deg);
+        }
+
+        .right-arm {
+            top: 20px;
+            right: -20px;
+            transform: rotate(30deg);
+        }
+
+        .player2 .left-arm {
+            transform: rotate(30deg);
+        }
+
+        .player2 .right-arm {
+            transform: rotate(-30deg);
+        }
+
+        /* 手枪 */
+        .gun {
+            position: absolute;
+            bottom: -20px;
+            left: 15px;
+            width: 30px;
+            height: 60px;
+            background: #2c2c2c;
+            border-radius: 5px;
+            border: 2px solid #1a1a1a;
+        }
+
+        .gun::before {
+            content: '';
+            position: absolute;
+            width: 45px;
+            height: 15px;
+            background: #2c2c2c;
+            bottom: 15px;
+            left: -8px;
+            border-radius: 7px;
+            border: 2px solid #1a1a1a;
+        }
+
+        .gun::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 20px;
+            background: #1a1a1a;
+            bottom: 40px;
+            left: 11px;
+            border-radius: 4px;
+        }
+
+        .countdown {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 180px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 40px rgba(255,255,255,0.8), 0 0 80px rgba(255,255,255,0.4);
+            z-index: 10;
+            opacity: 0;
+            transition: all 0.5s ease;
+        }
+
+        .countdown.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            animation: countdown-pulse 1s ease-in-out;
+        }
+
+        @keyframes countdown-pulse {
+            0% { transform: translate(-50%, -50%) scale(0.8); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .game-status {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .result {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 36px;
+            font-weight: bold;
+            display: none;
+            z-index: 20;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .result.show {
+            display: block;
+            animation: resultShow 0.5s ease;
+        }
+
+        @keyframes resultShow {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .restart-btn {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 18px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .shooting {
+            animation: shoot 0.5s ease;
+        }
+
+        @keyframes shoot {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(10px); }
+            50% { transform: translateX(-10px); }
+            75% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .muzzle-flash {
+            position: absolute;
+            top: 60%;
+            right: -60px;
+            width: 80px;
+            height: 16px;
+            background: linear-gradient(90deg, #ffff00, #ff6600);
+            border-radius: 8px;
+            opacity: 0;
+            transform: translateY(-50%);
+        }
+
+        .player2 .muzzle-flash {
+            left: -60px;
+            right: auto;
+        }
+
+        .flash {
+            opacity: 1;
+            animation: flash 0.2s ease;
+        }
+
+        @keyframes flash {
+            0% { opacity: 1; transform: translateY(-50%) scaleX(1); }
+            50% { opacity: 1; transform: translateY(-50%) scaleX(1.5); }
+            100% { opacity: 0; transform: translateY(-50%) scaleX(0.5); }
+        }
+
+        .instructions {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            text-align: center;
+            font-size: 24px;
+            opacity: 0.8;
+        }
+
+        .vs {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 72px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 30px rgba(255,255,255,0.5);
+            z-index: 5;
+            transition: opacity 0.5s ease;
+        }
+
+        .vs.hide {
+            opacity: 0;
+        }
+
+        /* 胜利者样式 - 吹枪口 */
+        .winner .cowboy {
+            animation: victory-pose 2s ease-in-out infinite;
+        }
+
+        .winner .gun {
+            position: relative;
+        }
+
+        .winner .gun::before {
+            content: '';
+            position: absolute;
+            width: 45px;
+            height: 15px;
+            background: #2c2c2c;
+            bottom: 15px;
+            left: -8px;
+            border-radius: 7px;
+            border: 2px solid #1a1a1a;
+        }
+
+        .winner .gun::after {
+            content: '💨💨💨';
+            position: absolute;
+            font-size: 16px;
+            top: -30px;
+            left: 25px;
+            opacity: 0;
+            animation: smoke-puff 2s ease-in-out infinite;
+            background: none;
+            border: none;
+            width: auto;
+            height: auto;
+            transform-origin: center;
+        }
+
+        @keyframes victory-pose {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.05) rotate(2deg); }
+        }
+
+        @keyframes smoke-puff {
+            0% { opacity: 0; transform: translateY(0) scale(0.5); }
+            30% { opacity: 1; transform: translateY(-10px) scale(1); }
+            70% { opacity: 1; transform: translateY(-15px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-25px) scale(0.8); }
+        }
+
+
+        /* 失败者样式 - 中弹死亡 */
+        .loser {
+            transform: rotate(-15deg);
+            filter: grayscale(50%);
+            opacity: 0.8;
+        }
+
+        .loser .cowboy {
+            animation: death-fall 3s ease-in-out forwards;
+        }
+
+        .loser .face {
+            position: relative;
+        }
+
+        .loser .face::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: #8B0000;
+            border-radius: 50%;
+            top: 80px;
+            right: 20px;
+            animation: blood-appear 1s ease-in-out forwards;
+            opacity: 0;
+        }
+
+        .loser .eye {
+            animation: eyes-close 2s ease-in-out forwards;
+        }
+
+        .loser .hat {
+            animation: hat-fall 2.5s ease-in-out forwards;
+        }
+
+        @keyframes death-fall {
+            0% { transform: translateY(0) rotate(0deg); }
+            30% { transform: translateY(20px) rotate(-10deg); }
+            60% { transform: translateY(40px) rotate(-20deg); }
+            100% { transform: translateY(60px) rotate(-25deg); }
+        }
+
+        @keyframes blood-appear {
+            0% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes eyes-close {
+            0% { transform: scaleY(1); }
+            50% { transform: scaleY(0.3); }
+            100% { transform: scaleY(0.1); }
+        }
+
+        @keyframes hat-fall {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(10px) rotate(-45deg); }
+            100% { transform: translateY(30px) rotate(-90deg) translateX(20px); }
+        }
+
+        /* 增强胜利者的吹枪口动作 */
+        .winner .right-arm {
+            animation: blow-gun-arm 3s ease-in-out infinite;
+        }
+
+        .winner .left-arm {
+            animation: blow-gun-support 3s ease-in-out infinite;
+        }
+
+        .player2.winner .left-arm {
+            animation: blow-gun-arm 3s ease-in-out infinite;
+        }
+
+        .player2.winner .right-arm {
+            animation: blow-gun-support 3s ease-in-out infinite;
+        }
+
+        @keyframes blow-gun-arm {
+            0%, 100% { transform: rotate(30deg) translateY(0); }
+            30% { transform: rotate(20deg) translateY(-10px); }
+            60% { transform: rotate(25deg) translateY(-5px); }
+        }
+
+        @keyframes blow-gun-support {
+            0%, 100% { transform: rotate(-30deg); }
+            50% { transform: rotate(-25deg) translateY(-5px); }
+        }
+
+        /* 为失败者添加更多死亡效果 */
+        .loser .vest::before,
+        .loser .vest::after {
+            animation: button-fall 2s ease-in-out forwards;
+        }
+
+        @keyframes button-fall {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(20px) rotate(180deg); opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-status">准备决斗！</div>
+        
+        <div class="player player1">
+            <div class="player-avatar">
+                <div class="cowboy">
+                    <div class="hat"></div>
+                    <div class="face">
+                        <div class="eyes">
+                            <div class="eye"></div>
+                            <div class="eye"></div>
+                        </div>
+                        <div class="mustache"></div>
+                        <div class="mouth"></div>
+                    </div>
+                    <div class="body">
+                        <div class="vest"></div>
+                        <div class="shirt"></div>
+                        <div class="arms">
+                            <div class="arm left-arm"></div>
+                            <div class="arm right-arm">
+                                <div class="gun"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="player-name">玩家1</div>
+            <div class="player-key">按 S 开枪</div>
+            <div class="muzzle-flash"></div>
+        </div>
+
+        <div class="vs">VS</div>
+
+        <div class="player player2">
+            <div class="player-avatar">
+                <div class="cowboy">
+                    <div class="hat"></div>
+                    <div class="face">
+                        <div class="eyes">
+                            <div class="eye"></div>
+                            <div class="eye"></div>
+                        </div>
+                        <div class="mustache"></div>
+                        <div class="mouth"></div>
+                    </div>
+                    <div class="body">
+                        <div class="vest"></div>
+                        <div class="shirt"></div>
+                        <div class="arms">
+                            <div class="arm left-arm">
+                                <div class="gun"></div>
+                            </div>
+                            <div class="arm right-arm"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="player-name">玩家2</div>
+            <div class="player-key">按 5 开枪</div>
+            <div class="muzzle-flash"></div>
+        </div>
+
+        <div class="countdown">5</div>
+        
+        <div class="result">
+            <div class="winner-text"></div>
+            <button class="restart-btn" onclick="restartGame()">再来一局</button>
+            <div style="margin-top: 15px; font-size: 16px; opacity: 0.8; color: #ccc;">
+                或按空格键重新开始
+            </div>
+        </div>
+
+        <div class="instructions">
+            按空格键开始游戏或重新开始 - 等待"开火！"信号后谁先开枪谁获胜！
+        </div>
+    </div>
+
+    <script>
+        let gameState = 'waiting'; // 'waiting', 'countdown', 'ready', 'finished'
+        let countdownValue = 5;
+        let countdownInterval;
+        let startTime;
+        let player1Shot = false;
+        let player2Shot = false;
+        let canShoot = false;
+
+        const elements = {
+            countdown: document.querySelector('.countdown'),
+            result: document.querySelector('.result'),
+            winnerText: document.querySelector('.winner-text'),
+            gameStatus: document.querySelector('.game-status'),
+            player1: document.querySelector('.player1'),
+            player2: document.querySelector('.player2'),
+            player1Flash: document.querySelector('.player1 .muzzle-flash'),
+            player2Flash: document.querySelector('.player2 .muzzle-flash'),
+            instructions: document.querySelector('.instructions'),
+            vs: document.querySelector('.vs')
+        };
+
+        function startGame() {
+            if (gameState !== 'waiting') return;
+            
+            gameState = 'countdown';
+            // 随机生成2-5秒的倒计时时间
+            countdownValue = Math.floor(Math.random() * 4) + 2; // 2-5秒随机
+            player1Shot = false;
+            player2Shot = false;
+            canShoot = false;
+            
+            elements.gameStatus.textContent = '准备...';
+            elements.instructions.style.opacity = '0.3';
+            elements.result.classList.remove('show');
+            
+            // 重置玩家状态
+            elements.player1.classList.remove('shooting');
+            elements.player2.classList.remove('shooting');
+            elements.player1Flash.classList.remove('flash');
+            elements.player2Flash.classList.remove('flash');
+            
+            startCountdown();
+        }
+
+        function startCountdown() {
+            elements.countdown.textContent = '准备';
+            elements.countdown.classList.add('show');
+            elements.vs.classList.add('hide'); // 隐藏VS字体
+            
+            // 使用随机时间进行倒计时，但不显示数字
+            countdownInterval = setTimeout(() => {
+                elements.countdown.textContent = '开火！';
+                elements.gameStatus.textContent = '开火！';
+                
+                // 立即允许开枪，不等待延迟
+                gameState = 'ready';
+                canShoot = true;
+                startTime = Date.now();
+                
+                // 延迟隐藏"开火！"文字，但不影响游戏逻辑
+                setTimeout(() => {
+                    elements.countdown.classList.remove('show');
+                }, 2000); // 延长显示时间到2秒
+            }, countdownValue * 1000); // countdownValue秒后执行
+        }
+
+        function shoot(player) {
+            if (!canShoot || gameState !== 'ready') return;
+            
+            const currentTime = Date.now();
+            const reactionTime = currentTime - startTime;
+            
+            if (player === 1 && !player1Shot) {
+                player1Shot = true;
+                elements.player1.classList.add('shooting');
+                elements.player1Flash.classList.add('flash');
+                checkWinner(1, reactionTime);
+            } else if (player === 2 && !player2Shot) {
+                player2Shot = true;
+                elements.player2.classList.add('shooting');
+                elements.player2Flash.classList.add('flash');
+                checkWinner(2, reactionTime);
+            }
+        }
+
+        function checkWinner(shooter, reactionTime) {
+            if (gameState !== 'ready') return;
+            
+            gameState = 'finished';
+            canShoot = false;
+            elements.vs.classList.remove('hide'); // 重新显示VS字体
+            
+            const reactionTimeMs = Math.round(reactionTime);
+            let winnerText = '';
+            
+            if (shooter === 1) {
+                winnerText = `🎉 玩家1 获胜！<br><small>反应时间: ${reactionTimeMs}ms</small>`;
+                elements.gameStatus.textContent = '玩家1 获胜！';
+                // 添加胜利者和失败者样式
+                elements.player1.classList.add('winner');
+                elements.player2.classList.add('loser');
+            } else {
+                winnerText = `🎉 玩家2 获胜！<br><small>反应时间: ${reactionTimeMs}ms</small>`;
+                elements.gameStatus.textContent = '玩家2 获胜！';
+                // 添加胜利者和失败者样式
+                elements.player2.classList.add('winner');
+                elements.player1.classList.add('loser');
+            }
+            
+            elements.winnerText.innerHTML = winnerText;
+            
+            setTimeout(() => {
+                elements.result.classList.add('show');
+            }, 1000);
+        }
+
+        function restartGame() {
+            gameState = 'waiting';
+            elements.gameStatus.textContent = '准备决斗！';
+            elements.instructions.style.opacity = '0.8';
+            elements.result.classList.remove('show');
+            elements.player1.classList.remove('shooting', 'winner', 'loser');
+            elements.player2.classList.remove('shooting', 'winner', 'loser');
+            elements.player1Flash.classList.remove('flash');
+            elements.player2Flash.classList.remove('flash');
+            elements.vs.classList.remove('hide'); // 重新显示VS字体
+        }
+
+        // 键盘事件监听
+        document.addEventListener('keydown', (event) => {
+            const key = event.key.toLowerCase();
+            
+            // 空格键开始游戏或重新开始游戏
+            if (key === ' ' || key === 'spacebar') {
+                event.preventDefault();
+                if (gameState === 'waiting') {
+                    startGame();
+                } else if (gameState === 'finished') {
+                    restartGame();
+                }
+            }
+            
+            // 玩家1: S键
+            if (key === 's') {
+                event.preventDefault();
+                if (gameState === 'countdown') {
+                    // 准备期间开枪判负
+                    gameState = 'finished';
+                    canShoot = false;
+                    clearTimeout(countdownInterval);
+                    elements.countdown.classList.remove('show');
+                    elements.vs.classList.remove('hide'); // 重新显示VS字体
+                    elements.winnerText.innerHTML = '🚫 玩家1 抢跑！<br>玩家2 获胜！';
+                    elements.gameStatus.textContent = '玩家2 获胜！';
+                    // 添加胜利者和失败者样式
+                    elements.player2.classList.add('winner');
+                    elements.player1.classList.add('loser');
+                    setTimeout(() => {
+                        elements.result.classList.add('show');
+                    }, 500);
+                } else {
+                    shoot(1);
+                }
+            }
+            
+            // 玩家2: 5键
+            if (key === '5') {
+                event.preventDefault();
+                if (gameState === 'countdown') {
+                    // 准备期间开枪判负
+                    gameState = 'finished';
+                    canShoot = false;
+                    clearTimeout(countdownInterval);
+                    elements.countdown.classList.remove('show');
+                    elements.vs.classList.remove('hide'); // 重新显示VS字体
+                    elements.winnerText.innerHTML = '🚫 玩家2 抢跑！<br>玩家1 获胜！';
+                    elements.gameStatus.textContent = '玩家1 获胜！';
+                    // 添加胜利者和失败者样式
+                    elements.player1.classList.add('winner');
+                    elements.player2.classList.add('loser');
+                    setTimeout(() => {
+                        elements.result.classList.add('show');
+                    }, 500);
+                } else {
+                    shoot(2);
+                }
+            }
+        });
+
+        // 防止页面失去焦点时的问题
+        window.addEventListener('blur', () => {
+            if (gameState === 'countdown') {
+                clearTimeout(countdownInterval);
+                elements.vs.classList.remove('hide'); // 确保VS字体显示
+                restartGame();
+            }
+        });
+    </script>
+</body>
+</html>
