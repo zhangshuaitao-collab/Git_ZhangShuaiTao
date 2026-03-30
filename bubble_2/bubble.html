@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>泡泡塑形 · Bubble Shape</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: #030a14;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#wrap {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+#gameCanvas {
+  display: block;
+  cursor: crosshair;
+}
+
+#hud {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(130, 190, 255, .38);
+  font-size: 12px;
+  pointer-events: none;
+  white-space: nowrap;
+  letter-spacing: .3px;
+}
+
+#counter {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  color: rgba(100, 170, 230, .5);
+  font-size: 11px;
+  font-family: 'Courier New', monospace;
+  pointer-events: none;
+}
+
+#areaIndicator {
+  position: absolute;
+  top: 38px;
+  right: 18px;
+  color: rgba(80, 200, 130, .5);
+  font-size: 10px;
+  font-family: 'Courier New', monospace;
+  pointer-events: none;
+}
+
+/* ── Toolbar ── */
+#bar {
+  height: 100px;
+  background: rgba(2, 8, 18, .97);
+  border-top: 1px solid rgba(0, 140, 255, .13);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.sec { display: flex; flex-direction: column; gap: 6px; }
+
+.sec-lbl {
+  color: rgba(90, 150, 210, .5);
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.brow { display: flex; gap: 7px; }
+
+.bb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.07);
+  cursor: pointer;
+  background: rgba(255,255,255,.02);
+  transition: .15s;
+  min-width: 64px;
+}
+.bb:hover { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.14); }
+.bb.on {
+  border-color: var(--c);
+  background: rgba(var(--cr), .09);
+  box-shadow: 0 0 10px rgba(var(--cr), .28), inset 0 0 7px rgba(var(--cr), .1);
+}
+
+.bbar {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--c);
+  box-shadow: 0 0 6px var(--c);
+}
+
+.blbl {
+  font-size: 9.5px;
+  color: rgba(190, 220, 255, .7);
+  font-family: 'Courier New', monospace;
+}
+
+.div1 { width: 1px; height: 48px; background: rgba(255,255,255,.07); margin: 0 4px; }
+
+.arow { display: flex; gap: 7px; }
+
+.ab {
+  padding: 6px 13px;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 6px;
+  background: rgba(255,255,255,.03);
+  color: rgba(170, 205, 255, .75);
+  cursor: pointer;
+  font-size: 11.5px;
+  transition: .15s;
+  font-family: inherit;
+}
+.ab:hover { background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.22); color: rgba(210,230,255,1); }
+.ab.red:hover { background: rgba(255,50,50,.1); border-color: rgba(255,80,80,.3); color: rgba(255,140,140,.9); }
+
+#khelp {
+  margin-left: auto;
+  color: rgba(70, 120, 170, .42);
+  font-size: 10px;
+  line-height: 1.8;
+  font-family: 'Courier New', monospace;
+}
+</style>
+</head>
+<body>
+
+<div id="wrap">
+  <canvas id="gameCanvas"></canvas>
+  <div id="hud">拖拽放置板子 · 右键移除 · 用板子围住泡泡来塑形</div>
+  <div id="counter">板子 0</div>
+  <div id="areaIndicator">压力 ···</div>
+</div>
+
+<div id="bar">
+  <div class="sec">
+    <div class="sec-lbl">板子类型</div>
+    <div class="brow">
+      <div class="bb on" id="btn-s" data-t="s" style="--c:#00e5ff;--cr:0,229,255">
+        <div class="bbar" style="width:42px"></div>
+        <div class="blbl">短 · 100</div>
+      </div>
+      <div class="bb" id="btn-m" data-t="m" style="--c:#76ff03;--cr:118,255,3">
+        <div class="bbar" style="width:62px"></div>
+        <div class="blbl">中 · 200</div>
+      </div>
+      <div class="bb" id="btn-l" data-t="l" style="--c:#ff9100;--cr:255,145,0">
+        <div class="bbar" style="width:86px"></div>
+        <div class="blbl">长 · 300</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="div1"></div>
+
+  <div class="sec">
+    <div class="sec-lbl">操作</div>
+    <div class="arow">
+      <button class="ab" id="undoBtn">↩ 撤销</button>
+      <button class="ab" id="resetBtn">⟳ 重置</button>
+      <button class="ab red" id="clearBtn">✕ 清空</button>
+    </div>
+  </div>
+
+  <div id="khelp">
+    1 / 2 / 3  切换板子类型<br>
+    U  撤销  ·  R  重置泡泡<br>
+    右键点击板子  移除
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ════════════════════════════════════════════════════════
+//  CANVAS SETUP
+// ════════════════════════════════════════════════════════
+const canvas = document.getElementById('gameCanvas');
+const ctx    = canvas.getContext('2d');
+const wrap   = document.getElementById('wrap');
+const cntEl  = document.getElementById('counter');
+const prsEl  = document.getElementById('areaIndicator');
+
+function resize() {
+  canvas.width  = wrap.clientWidth;
+  canvas.height = wrap.clientHeight;
+}
+resize();
+window.addEventListener('resize', () => { resize(); resetAll(); });
+
+// ════════════════════════════════════════════════════════
+//  PHYSICS CONSTANTS
+// ════════════════════════════════════════════════════════
+const N        = 64;     // soft-body particle count
+const SUBSTEPS = 4;      // physics substeps per render frame
+const SK       = 0.8;    // spring stiffness
+const SD       = 0.1;    // spring damping
+const PK       = 4.5;    // pressure constant
+const GRV      = 0.012;  // gravity per substep
+const VDAMP    = 0.979;  // velocity damping per substep
+const BTHICK   = 3.5;    // half-thickness of collision for boards (px)
+
+// ════════════════════════════════════════════════════════
+//  BUBBLE STATE
+// ════════════════════════════════════════════════════════
+let R0;   // natural radius
+let A0;   // natural area (π R0²)
+let SRL;  // spring rest length (chord between adjacent particles)
+let pts;  // Float32Array layout: [x0,y0,vx0,vy0, x1,y1,vx1,vy1, ...]
+          // We'll use an array of objects for clarity
+
+function initBubble() {
+  const bx = canvas.width  * 0.5;
+  const by = canvas.height * 0.38;
+
+  R0  = Math.min(canvas.width, canvas.height) * 0.17;
+  R0  = Math.max(55, Math.min(R0, 145));
+  A0  = Math.PI * R0 * R0;
+
+  pts = [];
+  for (let i = 0; i < N; i++) {
+    const a = (i / N) * Math.PI * 2;
+    pts.push({ x: bx + R0 * Math.cos(a), y: by + R0 * Math.sin(a), vx: 0, vy: 0 });
+  }
+
+  const p0 = pts[0], p1 = pts[1];
+  SRL = Math.hypot(p1.x - p0.x, p1.y - p0.y);
+}
+
+// Shoelace signed area (positive for our initialization winding)
+function getArea() {
+  let s = 0;
+  for (let i = 0; i < N; i++) {
+    const j = (i + 1) % N;
+    s += pts[i].x * pts[j].y - pts[j].x * pts[i].y;
+  }
+  return Math.abs(s) * 0.5;
+}
+
+function getCentroid() {
+  let x = 0, y = 0;
+  for (const p of pts) { x += p.x; y += p.y; }
+  return { x: x / N, y: y / N };
+}
+
+// ════════════════════════════════════════════════════════
+//  BOARDS
+// ════════════════════════════════════════════════════════
+const BOARD_LEN   = { s: 100, m: 200, l: 300 };
+const BOARD_COLOR = { s: '#00e5ff', m: '#76ff03', l: '#ff9100' };
+
+let boards = [];
+let selType = 's';
+
+function placeBoard(x1, y1, x2, y2, type) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.hypot(dx, dy);
+  if (len < 2) return;
+
+  // Left-normal of board direction vector
+  const nx = -dy / len;
+  const ny =  dx / len;
+
+  // Determine which side the bubble centroid is on
+  const c = getCentroid();
+  const d = (c.x - x1) * nx + (c.y - y1) * ny;
+
+  boards.push({ x1, y1, x2, y2, side: d >= 0 ? 1 : -1, type, color: BOARD_COLOR[type] });
+  cntEl.textContent = `板子 ${boards.length}`;
+}
+
+// Keep particles on the correct side of a board segment
+function resolveBoard(b) {
+  const { x1, y1, x2, y2, side } = b;
+  const bx   = x2 - x1, by = y2 - y1;
+  const bLen2 = bx * bx + by * by;
+  const bLen  = Math.sqrt(bLen2);
+  if (bLen < 1) return;
+
+  // Left-normal
+  const nx = -by / bLen;
+  const ny =  bx / bLen;
+
+  for (const p of pts) {
+    const pdx = p.x - x1, pdy = p.y - y1;
+
+    // Parametric projection onto board segment [0,1]
+    const t = (pdx * bx + pdy * by) / bLen2;
+    if (t < 0 || t > 1) continue;
+
+    // Signed distance (positive = left side)
+    const dist = pdx * nx + pdy * ny;
+    const pen  = dist * side;   // >0 = on correct side
+
+    if (pen < BTHICK) {
+      // Push particle back to correct side with small gap
+      const corr = (BTHICK - pen) * side;
+      p.x += nx * corr;
+      p.y += ny * corr;
+
+      // Cancel velocity component pushing into the board
+      const vn = p.vx * nx + p.vy * ny;
+      if (vn * side < 0) {
+        p.vx -= vn * nx * 1.06;   // tiny bounce
+        p.vy -= vn * ny * 1.06;
+      }
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  PHYSICS STEP
+// ════════════════════════════════════════════════════════
+function physicsStep() {
+  const A   = getArea();
+  // Pressure magnitude — proportional to area deficit
+  // Drops to 0 when bubble is slightly over natural size (ratio < 0.9 threshold)
+  const rat = A0 / Math.max(A, 1);
+  const pmg = PK * Math.max(0, rat - 0.9);
+
+  // Accumulate forces
+  const fx = new Float64Array(N);
+  const fy = new Float64Array(N);
+
+  // Gravity
+  for (let i = 0; i < N; i++) fy[i] += GRV;
+
+  // Spring + pressure forces along each edge i→j
+  for (let i = 0; i < N; i++) {
+    const j  = (i + 1) % N;
+    const pi = pts[i], pj = pts[j];
+
+    const sdx  = pj.x - pi.x;
+    const sdy  = pj.y - pi.y;
+    const sd   = Math.hypot(sdx, sdy) || 1e-5;
+
+    // ── Hooke spring ──────────────────────────
+    const stretch = sd - SRL;
+    const sf      = SK * stretch / sd;
+    fx[i] += sf * sdx;  fy[i] += sf * sdy;
+    fx[j] -= sf * sdx;  fy[j] -= sf * sdy;
+
+    // ── Spring damping ────────────────────────
+    const rvx = pj.vx - pi.vx;
+    const rvy = pj.vy - pi.vy;
+    const vr  = (rvx * sdx + rvy * sdy) / sd;
+    const df  = SD * vr / sd;
+    fx[i] += df * sdx;  fy[i] += df * sdy;
+    fx[j] -= df * sdx;  fy[j] -= df * sdy;
+
+    // ── Gas pressure (outward normal = (sdy, -sdx)/sd) ──
+    if (pmg > 0) {
+      const pnx = sdy / sd;
+      const pny = -sdx / sd;
+      const pf  = pmg * sd * 0.5;
+      fx[i] += pnx * pf;  fy[i] += pny * pf;
+      fx[j] += pnx * pf;  fy[j] += pny * pf;
+    }
+  }
+
+  // Integrate: v += F, v *= damp, x += v
+  for (let i = 0; i < N; i++) {
+    pts[i].vx = (pts[i].vx + fx[i]) * VDAMP;
+    pts[i].vy = (pts[i].vy + fy[i]) * VDAMP;
+    pts[i].x  += pts[i].vx;
+    pts[i].y  += pts[i].vy;
+  }
+
+  // ── Constraint iterations ─────────────────
+  const mg = 4;
+  for (let it = 0; it < 3; it++) {
+    for (const b of boards) resolveBoard(b);
+
+    // Canvas boundary
+    for (const p of pts) {
+      if (p.x < mg)                    { p.x = mg;                    if (p.vx < 0) p.vx *= -0.25; }
+      if (p.x > canvas.width  - mg)    { p.x = canvas.width  - mg;    if (p.vx > 0) p.vx *= -0.25; }
+      if (p.y < mg)                    { p.y = mg;                    if (p.vy < 0) p.vy *= -0.25; }
+      if (p.y > canvas.height - mg)    { p.y = canvas.height - mg;    if (p.vy > 0) p.vy *= -0.25; }
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  AMBIENT MINI-BUBBLES (decorative)
+// ════════════════════════════════════════════════════════
+const amb = [];
+function initAmb() {
+  amb.length = 0;
+  for (let i = 0; i < 28; i++) {
+    amb.push({
+      x:   Math.random() * canvas.width,
+      y:   Math.random() * canvas.height,
+      r:   0.8 + Math.random() * 2.5,
+      vy: -0.18 - Math.random() * 0.25,
+      op:  0.06 + Math.random() * 0.14,
+    });
+  }
+}
+
+function updateAmb() {
+  for (const p of amb) {
+    p.y += p.vy;
+    if (p.y < -8) {
+      p.y = canvas.height + 8;
+      p.x = Math.random() * canvas.width;
+    }
+  }
+}
+
+function drawAmb() {
+  ctx.save();
+  for (const p of amb) {
+    ctx.globalAlpha = p.op;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(120,210,255,1)';
+    ctx.lineWidth   = 0.6;
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+// ════════════════════════════════════════════════════════
+//  RENDERING
+// ════════════════════════════════════════════════════════
+let tick = 0;
+
+// Build Catmull-Rom smooth path through particles
+function buildBubblePath() {
+  ctx.beginPath();
+  for (let i = 0; i < N; i++) {
+    const p0 = pts[(i - 1 + N) % N];
+    const p1 = pts[i];
+    const p2 = pts[(i + 1)     % N];
+    const p3 = pts[(i + 2)     % N];
+
+    // Catmull-Rom → Cubic Bézier conversion (tension = 1/3)
+    const c1x = p1.x + (p2.x - p0.x) / 6;
+    const c1y = p1.y + (p2.y - p0.y) / 6;
+    const c2x = p2.x - (p3.x - p1.x) / 6;
+    const c2y = p2.y - (p3.y - p1.y) / 6;
+
+    if (i === 0) ctx.moveTo(p1.x, p1.y);
+    ctx.bezierCurveTo(c1x, c1y, c2x, c2y, p2.x, p2.y);
+  }
+  ctx.closePath();
+}
+
+function drawBubble() {
+  const ctr = getCentroid();
+  const hue = (tick * 0.45) % 360;   // slowly shifting iridescent colour
+
+  // ── Body fill ────────────────────────────
+  buildBubblePath();
+  const fg = ctx.createRadialGradient(
+    ctr.x - R0 * 0.22, ctr.y - R0 * 0.22, R0 * 0.04,
+    ctr.x,             ctr.y,              R0 * 1.65
+  );
+  fg.addColorStop(0,   'rgba(200, 248, 255, 0.30)');
+  fg.addColorStop(0.35,'rgba(80,  188, 238, 0.17)');
+  fg.addColorStop(0.75,'rgba(28,  90,  200, 0.10)');
+  fg.addColorStop(1,   'rgba(8,   38,  140, 0.03)');
+  ctx.fillStyle = fg;
+  ctx.fill();
+
+  // ── Iridescent outer rim ──────────────────
+  ctx.save();
+  ctx.shadowColor = `hsla(${hue}, 90%, 68%, 0.60)`;
+  ctx.shadowBlur  = 22;
+  buildBubblePath();
+  ctx.strokeStyle = `hsla(${(hue + 22) % 360}, 84%, 74%, 0.80)`;
+  ctx.lineWidth   = 1.8;
+  ctx.stroke();
+  ctx.restore();
+
+  // ── Thick soft inner glow ─────────────────
+  ctx.save();
+  buildBubblePath();
+  ctx.strokeStyle = 'rgba(160, 235, 255, 0.16)';
+  ctx.lineWidth   = 6;
+  ctx.stroke();
+  ctx.restore();
+
+  // ── Clipped highlights ────────────────────
+  ctx.save();
+  buildBubblePath();
+  ctx.clip();
+
+  // Primary highlight — top-left bright ellipse
+  const hx  = ctr.x - R0 * 0.28, hy  = ctr.y - R0 * 0.32;
+  const hg  = ctx.createRadialGradient(hx, hy, 0, hx, hy, R0 * 0.44);
+  hg.addColorStop(0,   'rgba(255,255,255,0.32)');
+  hg.addColorStop(0.55,'rgba(255,255,255,0.06)');
+  hg.addColorStop(1,   'rgba(255,255,255,0)');
+  ctx.fillStyle = hg;
+  ctx.beginPath();
+  ctx.ellipse(hx, hy, R0 * 0.40, R0 * 0.27, -0.42, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Secondary highlight — bottom-right faint
+  const hx2 = ctr.x + R0 * 0.30, hy2 = ctr.y + R0 * 0.28;
+  const hg2 = ctx.createRadialGradient(hx2, hy2, 0, hx2, hy2, R0 * 0.22);
+  hg2.addColorStop(0, 'rgba(100,215,255,0.16)');
+  hg2.addColorStop(1, 'rgba(100,215,255,0)');
+  ctx.fillStyle = hg2;
+  ctx.beginPath();
+  ctx.ellipse(hx2, hy2, R0 * 0.20, R0 * 0.13, 0.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawBoard(b) {
+  ctx.save();
+  ctx.lineCap = 'round';
+
+  // Wide soft halo
+  ctx.globalAlpha = 0.20;
+  ctx.shadowColor = b.color;
+  ctx.shadowBlur  = 24;
+  ctx.strokeStyle = b.color;
+  ctx.lineWidth   = 18;
+  ctx.beginPath();
+  ctx.moveTo(b.x1, b.y1);
+  ctx.lineTo(b.x2, b.y2);
+  ctx.stroke();
+
+  // Core coloured bar
+  ctx.globalAlpha = 1;
+  ctx.shadowBlur  = 10;
+  ctx.lineWidth   = 7;
+  ctx.stroke();
+
+  // Bright specular centre line
+  ctx.shadowBlur  = 0;
+  ctx.globalAlpha = 0.72;
+  ctx.strokeStyle = 'rgba(255,255,255,0.82)';
+  ctx.lineWidth   = 2;
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+// Drag-to-place preview
+let isDrag  = false;
+let dStart  = null;
+let mPos    = { x: 0, y: 0 };
+
+function drawPreview() {
+  if (!isDrag || !dStart) return;
+  const dx = mPos.x - dStart.x, dy = mPos.y - dStart.y;
+  const dl = Math.hypot(dx, dy);
+  if (dl < 5) return;
+
+  const len  = BOARD_LEN[selType];
+  const dirX = dx / dl, dirY = dy / dl;
+  const mx   = (dStart.x + mPos.x) * 0.5;
+  const my   = (dStart.y + mPos.y) * 0.5;
+  const col  = BOARD_COLOR[selType];
+
+  ctx.save();
+  ctx.setLineDash([8, 5]);
+  ctx.lineCap     = 'round';
+  ctx.shadowColor = col;
+  ctx.shadowBlur  = 14;
+  ctx.strokeStyle = col;
+  ctx.lineWidth   = 5;
+  ctx.globalAlpha = 0.52;
+  ctx.beginPath();
+  ctx.moveTo(mx - dirX * len * 0.5, my - dirY * len * 0.5);
+  ctx.lineTo(mx + dirX * len * 0.5, my + dirY * len * 0.5);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawBackground() {
+  ctx.fillStyle = '#030a14';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Radial vignette
+  const vg = ctx.createRadialGradient(
+    canvas.width * 0.5, canvas.height * 0.5, canvas.height * 0.20,
+    canvas.width * 0.5, canvas.height * 0.5, canvas.height * 0.92
+  );
+  vg.addColorStop(0, 'rgba(0,0,0,0)');
+  vg.addColorStop(1, 'rgba(0,0,0,0.52)');
+  ctx.fillStyle = vg;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function render() {
+  drawBackground();
+  drawAmb();
+  for (const b of boards) drawBoard(b);
+  drawBubble();
+  drawPreview();
+
+  // Update pressure HUD
+  const A   = getArea();
+  const rat = A0 / Math.max(A, 1);
+  const pct = Math.round(rat * 100);
+  prsEl.textContent = `压力 ${pct}%`;
+  prsEl.style.color = rat > 1.2
+    ? 'rgba(255,120,100,.7)'
+    : rat > 1.0
+      ? 'rgba(255,200,80,.6)'
+      : 'rgba(80,200,130,.5)';
+}
+
+// ════════════════════════════════════════════════════════
+//  GAME LOOP
+// ════════════════════════════════════════════════════════
+function loop() {
+  tick++;
+  updateAmb();
+  for (let s = 0; s < SUBSTEPS; s++) physicsStep();
+  render();
+  requestAnimationFrame(loop);
+}
+
+// ════════════════════════════════════════════════════════
+//  INPUT HANDLING
+// ════════════════════════════════════════════════════════
+function canvasPos(e) {
+  const r = canvas.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
+canvas.addEventListener('mousedown', e => {
+  if (e.button !== 0) return;
+  isDrag  = true;
+  dStart  = canvasPos(e);
+  mPos    = canvasPos(e);
+});
+
+canvas.addEventListener('mousemove', e => {
+  mPos = canvasPos(e);
+});
+
+canvas.addEventListener('mouseup', e => {
+  if (!isDrag || !dStart) return;
+  isDrag = false;
+  const ep = canvasPos(e);
+  const dx = ep.x - dStart.x, dy = ep.y - dStart.y;
+  const dl = Math.hypot(dx, dy);
+
+  if (dl >= 8) {
+    const len  = BOARD_LEN[selType];
+    const dirX = dx / dl, dirY = dy / dl;
+    const mx   = (dStart.x + ep.x) * 0.5;
+    const my   = (dStart.y + ep.y) * 0.5;
+    placeBoard(
+      mx - dirX * len * 0.5, my - dirY * len * 0.5,
+      mx + dirX * len * 0.5, my + dirY * len * 0.5,
+      selType
+    );
+  }
+  dStart = null;
+});
+
+canvas.addEventListener('mouseleave', () => { isDrag = false; dStart = null; });
+
+// Right-click: remove nearest board
+canvas.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  const mp = canvasPos(e);
+  let minI = -1, minD = 22;
+
+  boards.forEach((b, i) => {
+    const bx  = b.x2 - b.x1, by = b.y2 - b.y1;
+    const l2  = bx * bx + by * by;
+    const t   = l2 > 0 ? Math.max(0, Math.min(1, ((mp.x - b.x1) * bx + (mp.y - b.y1) * by) / l2)) : 0;
+    const d   = Math.hypot(b.x1 + t * bx - mp.x, b.y1 + t * by - mp.y);
+    if (d < minD) { minD = d; minI = i; }
+  });
+
+  if (minI >= 0) {
+    boards.splice(minI, 1);
+    cntEl.textContent = `板子 ${boards.length}`;
+  }
+});
+
+// ── Board type buttons ────────────────────────────────
+document.querySelectorAll('.bb').forEach(btn => {
+  btn.addEventListener('click', () => {
+    selType = btn.dataset.t;
+    document.querySelectorAll('.bb').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+  });
+});
+
+// ── Action buttons ────────────────────────────────────
+document.getElementById('undoBtn').addEventListener('click', () => {
+  if (boards.length) { boards.pop(); cntEl.textContent = `板子 ${boards.length}`; }
+});
+document.getElementById('clearBtn').addEventListener('click', () => {
+  boards = []; cntEl.textContent = '板子 0';
+});
+document.getElementById('resetBtn').addEventListener('click', resetAll);
+
+function resetAll() {
+  boards = [];
+  initBubble();
+  initAmb();
+  cntEl.textContent = '板子 0';
+}
+
+// ── Keyboard shortcuts ────────────────────────────────
+window.addEventListener('keydown', e => {
+  if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+  const map = { '1': 'btn-s', '2': 'btn-m', '3': 'btn-l' };
+  if (map[e.key]) { document.getElementById(map[e.key]).click(); return; }
+  if (e.key === 'u' || e.key === 'U') document.getElementById('undoBtn').click();
+  if (e.key === 'r' || e.key === 'R') resetAll();
+});
+
+// ── Touch support ─────────────────────────────────────
+function touchPos(e) {
+  const r = canvas.getBoundingClientRect();
+  const t = e.touches[0] || e.changedTouches[0];
+  return { x: t.clientX - r.left, y: t.clientY - r.top };
+}
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  isDrag = true;
+  dStart = touchPos(e);
+  mPos   = touchPos(e);
+}, { passive: false });
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  mPos = touchPos(e);
+}, { passive: false });
+
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  if (!isDrag || !dStart) return;
+  isDrag = false;
+  const ep = touchPos(e);
+  const dx = ep.x - dStart.x, dy = ep.y - dStart.y;
+  const dl = Math.hypot(dx, dy);
+  if (dl >= 8) {
+    const len  = BOARD_LEN[selType];
+    const dirX = dx / dl, dirY = dy / dl;
+    const mx   = (dStart.x + ep.x) * 0.5;
+    const my   = (dStart.y + ep.y) * 0.5;
+    placeBoard(
+      mx - dirX * len * 0.5, my - dirY * len * 0.5,
+      mx + dirX * len * 0.5, my + dirY * len * 0.5,
+      selType
+    );
+  }
+  dStart = null;
+}, { passive: false });
+
+// ════════════════════════════════════════════════════════
+//  START
+// ════════════════════════════════════════════════════════
+initBubble();
+initAmb();
+loop();
+</script>
+</body>
+</html>
