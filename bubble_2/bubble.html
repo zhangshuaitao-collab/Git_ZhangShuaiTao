@@ -64,11 +64,12 @@ body {
 
 /* ── Toolbar ── */
 #bar {
-  height: 100px;
+  min-height: 132px;
   background: rgba(2, 8, 18, .97);
   border-top: 1px solid rgba(0, 140, 255, .13);
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   padding: 0 20px;
   gap: 10px;
   flex-shrink: 0;
@@ -121,6 +122,35 @@ body {
 .div1 { width: 1px; height: 48px; background: rgba(255,255,255,.07); margin: 0 4px; }
 
 .arow { display: flex; gap: 7px; }
+
+.prow { display: flex; gap: 10px; align-items: center; }
+
+.fld {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fld label {
+  color: rgba(160, 205, 255, .56);
+  font-size: 10px;
+  font-family: 'Courier New', monospace;
+}
+
+.num {
+  width: 92px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  color: rgba(220, 235, 255, .92);
+  outline: none;
+}
+
+.num:focus {
+  border-color: rgba(0, 180, 255, .45);
+  box-shadow: 0 0 0 2px rgba(0, 180, 255, .12);
+}
 
 .ab {
   padding: 6px 13px;
@@ -176,6 +206,42 @@ body {
   <div class="div1"></div>
 
   <div class="sec">
+    <div class="sec-lbl">挡板形状</div>
+    <div class="brow">
+      <div class="bb on" id="shape-line" data-shape="line" style="--c:#8efcff;--cr:142,252,255">
+        <div class="bbar" style="width:48px"></div>
+        <div class="blbl">直板</div>
+      </div>
+      <div class="bb" id="shape-angle" data-shape="angle" style="--c:#c2a8ff;--cr:194,168,255">
+        <div class="bbar" style="width:44px; transform: rotate(18deg); transform-origin: left center;"></div>
+        <div class="blbl">角</div>
+      </div>
+      <div class="bb" id="shape-arc" data-shape="arc" style="--c:#ff7bc1;--cr:255,123,193">
+        <div class="blbl" style="font-size:22px; line-height:20px; color:#ff7bc1;">⌒</div>
+        <div class="blbl">弧线</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="div1"></div>
+
+  <div class="sec">
+    <div class="sec-lbl">数值控制</div>
+    <div class="prow">
+      <div class="fld">
+        <label for="angleInput">开角角度</label>
+        <input class="num" id="angleInput" type="number" min="20" max="170" step="1" value="90">
+      </div>
+      <div class="fld">
+        <label for="arcInput">弧线弧度</label>
+        <input class="num" id="arcInput" type="number" min="-120" max="120" step="1" value="40">
+      </div>
+    </div>
+  </div>
+
+  <div class="div1"></div>
+
+  <div class="sec">
     <div class="sec-lbl">操作</div>
     <div class="arow">
       <button class="ab" id="undoBtn">↩ 撤销</button>
@@ -185,9 +251,9 @@ body {
   </div>
 
   <div id="khelp">
-    1 / 2 / 3  切换板子类型<br>
-    U  撤销  ·  R  重置泡泡<br>
-    右键点击板子  移除
+    1 / 2 / 3  切换长度  ·  Q / W / E  切换形状<br>
+    拖空白区域放置  ·  拖挡板中心移动  ·  拖手柄旋转<br>
+    U  撤销  ·  R  重置泡泡  ·  右键移除挡板
   </div>
 </div>
 
@@ -202,6 +268,8 @@ const ctx    = canvas.getContext('2d');
 const wrap   = document.getElementById('wrap');
 const cntEl  = document.getElementById('counter');
 const prsEl  = document.getElementById('areaIndicator');
+const angleInput = document.getElementById('angleInput');
+const arcInput   = document.getElementById('arcInput');
 
 function resize() {
   canvas.width  = wrap.clientWidth;
@@ -215,12 +283,18 @@ window.addEventListener('resize', () => { resize(); resetAll(); });
 // ════════════════════════════════════════════════════════
 const N        = 64;     // soft-body particle count
 const SUBSTEPS = 4;      // physics substeps per render frame
-const SK       = 0.8;    // spring stiffness
-const SD       = 0.1;    // spring damping
-const PK       = 4.5;    // pressure constant
-const GRV      = 0.012;  // gravity per substep
-const VDAMP    = 0.979;  // velocity damping per substep
-const BTHICK   = 3.5;    // half-thickness of collision for boards (px)
+const V_DAMP   = 0.992;  // velocity damping for stable PBD motion
+const BTHICK   = 3.5;    // board collision half-thickness (px)
+const C_ITERS  = 18;     // more solver iterations for dense board setups
+const EDGE_STIFFNESS   = 0.42; // perimeter preservation
+const AREA_STIFFNESS   = 0.12; // volume preservation without oscillating pressure forces
+const BOARD_STIFFNESS  = 0.82; // soft board projection avoids hard fighting
+const CENTER_STIFFNESS = 0.10; // keeps centroid near screen center
+const EDGE_SLOP        = 0.015; // ignore tiny edge-length errors to prevent solver chatter
+const AREA_SLOP        = 6.0;   // ignore tiny area errors
+const CENTER_SLOP      = 0.08;  // ignore tiny centroid offsets
+const CONTACT_SLOP     = 0.35;  // allow a tiny cushion before correcting board contact
+const SLEEP_VEL        = 0.015; // clamp microscopic solved velocity to zero
 
 // ════════════════════════════════════════════════════════
 //  BUBBLE STATE
@@ -233,7 +307,7 @@ let pts;  // Float32Array layout: [x0,y0,vx0,vy0, x1,y1,vx1,vy1, ...]
 
 function initBubble() {
   const bx = canvas.width  * 0.5;
-  const by = canvas.height * 0.38;
+  const by = canvas.height * 0.5;
 
   R0  = Math.min(canvas.width, canvas.height) * 0.17;
   R0  = Math.max(55, Math.min(R0, 145));
@@ -242,27 +316,43 @@ function initBubble() {
   pts = [];
   for (let i = 0; i < N; i++) {
     const a = (i / N) * Math.PI * 2;
-    pts.push({ x: bx + R0 * Math.cos(a), y: by + R0 * Math.sin(a), vx: 0, vy: 0 });
+    pts.push({ x: bx + R0 * Math.cos(a), y: by + R0 * Math.sin(a), vx: 0, vy: 0, ox: 0, oy: 0 });
   }
 
   const p0 = pts[0], p1 = pts[1];
   SRL = Math.hypot(p1.x - p0.x, p1.y - p0.y);
 }
 
-// Shoelace signed area (positive for our initialization winding)
-function getArea() {
+function getSignedArea() {
   let s = 0;
   for (let i = 0; i < N; i++) {
     const j = (i + 1) % N;
     s += pts[i].x * pts[j].y - pts[j].x * pts[i].y;
   }
-  return Math.abs(s) * 0.5;
+  return s * 0.5;
+}
+
+// Shoelace area magnitude
+function getArea() {
+  return Math.abs(getSignedArea());
 }
 
 function getCentroid() {
   let x = 0, y = 0;
   for (const p of pts) { x += p.x; y += p.y; }
   return { x: x / N, y: y / N };
+}
+
+function solveCenterConstraint() {
+  const c = getCentroid();
+  const dx = (canvas.width * 0.5 - c.x) * CENTER_STIFFNESS;
+  const dy = (canvas.height * 0.5 - c.y) * CENTER_STIFFNESS;
+  if (Math.hypot(dx, dy) < CENTER_SLOP) return;
+
+  for (const p of pts) {
+    p.x += dx;
+    p.y += dy;
+  }
 }
 
 // ════════════════════════════════════════════════════════
@@ -273,132 +363,284 @@ const BOARD_COLOR = { s: '#00e5ff', m: '#76ff03', l: '#ff9100' };
 
 let boards = [];
 let selType = 's';
+let selShape = 'line';
+let selectedBoardId = null;
+let boardSeq = 1;
 
-function placeBoard(x1, y1, x2, y2, type) {
-  const dx = x2 - x1, dy = y2 - y1;
-  const len = Math.hypot(dx, dy);
-  if (len < 2) return;
+function clamp(v, min, max) {
+  return Math.max(min, Math.min(max, v));
+}
 
-  // Left-normal of board direction vector
-  const nx = -dy / len;
-  const ny =  dx / len;
-
-  // Determine which side the bubble centroid is on
-  const c = getCentroid();
-  const d = (c.x - x1) * nx + (c.y - y1) * ny;
-
-  boards.push({ x1, y1, x2, y2, side: d >= 0 ? 1 : -1, type, color: BOARD_COLOR[type] });
+function updateCounter() {
   cntEl.textContent = `板子 ${boards.length}`;
 }
 
-// Keep particles on the correct side of a board segment
-function resolveBoard(b) {
-  const { x1, y1, x2, y2, side } = b;
-  const bx   = x2 - x1, by = y2 - y1;
-  const bLen2 = bx * bx + by * by;
-  const bLen  = Math.sqrt(bLen2);
-  if (bLen < 1) return;
+function getCurrentAngleDeg() {
+  return clamp(Number(angleInput.value) || 90, 20, 170);
+}
 
-  // Left-normal
-  const nx = -by / bLen;
-  const ny =  bx / bLen;
+function getCurrentArcSag() {
+  return clamp(Number(arcInput.value) || 40, -120, 120);
+}
 
-  for (const p of pts) {
-    const pdx = p.x - x1, pdy = p.y - y1;
+function getBoardLength(board) {
+  return BOARD_LEN[board.type];
+}
 
-    // Parametric projection onto board segment [0,1]
-    const t = (pdx * bx + pdy * by) / bLen2;
-    if (t < 0 || t > 1) continue;
+function getBoardLocalPoints(board) {
+  const len = getBoardLength(board);
 
-    // Signed distance (positive = left side)
-    const dist = pdx * nx + pdy * ny;
-    const pen  = dist * side;   // >0 = on correct side
+  if (board.shape === 'angle') {
+    const arm = len * 0.56;
+    const half = clamp(board.angleDeg, 20, 170) * Math.PI / 360;
+    return [
+      { x: arm * Math.cos(-half), y: arm * Math.sin(-half) },
+      { x: 0, y: 0 },
+      { x: arm * Math.cos(half), y: arm * Math.sin(half) },
+    ];
+  }
 
-    if (pen < BTHICK) {
-      // Push particle back to correct side with small gap
-      const corr = (BTHICK - pen) * side;
-      p.x += nx * corr;
-      p.y += ny * corr;
+  if (board.shape === 'arc') {
+    const sag = clamp(board.arcSag, -120, 120);
+    const half = len * 0.5;
+    const points = [];
+    const count = 13;
+    for (let i = 0; i < count; i++) {
+      const t = i / (count - 1);
+      const x = -half + len * t;
+      const y = -sag * (1 - (x / half) * (x / half));
+      points.push({ x, y });
+    }
+    return points;
+  }
 
-      // Cancel velocity component pushing into the board
-      const vn = p.vx * nx + p.vy * ny;
-      if (vn * side < 0) {
-        p.vx -= vn * nx * 1.06;   // tiny bounce
-        p.vy -= vn * ny * 1.06;
+  return [
+    { x: -len * 0.5, y: 0 },
+    { x: len * 0.5, y: 0 },
+  ];
+}
+
+function localToWorld(board, p) {
+  const c = Math.cos(board.rotation);
+  const s = Math.sin(board.rotation);
+  return {
+    x: board.cx + p.x * c - p.y * s,
+    y: board.cy + p.x * s + p.y * c,
+  };
+}
+
+function getBoardPoints(board) {
+  return getBoardLocalPoints(board).map(p => localToWorld(board, p));
+}
+
+function getBoardSegments(board) {
+  const pts2 = getBoardPoints(board);
+  const segments = [];
+  for (let i = 0; i < pts2.length - 1; i++) {
+    segments.push({
+      x1: pts2[i].x,
+      y1: pts2[i].y,
+      x2: pts2[i + 1].x,
+      y2: pts2[i + 1].y,
+    });
+  }
+  return segments;
+}
+
+function getBoardRotateHandle(board) {
+  const dist = Math.max(38, getBoardLength(board) * 0.42);
+  return {
+    x: board.cx + Math.cos(board.rotation) * dist,
+    y: board.cy + Math.sin(board.rotation) * dist,
+  };
+}
+
+function pointSegmentDistance(px, py, x1, y1, x2, y2) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len2 = dx * dx + dy * dy;
+  const t = len2 > 0 ? clamp(((px - x1) * dx + (py - y1) * dy) / len2, 0, 1) : 0;
+  const qx = x1 + dx * t;
+  const qy = y1 + dy * t;
+  return Math.hypot(px - qx, py - qy);
+}
+
+function getBoardBodyDistance(board, pt) {
+  let best = Infinity;
+  for (const seg of getBoardSegments(board)) {
+    best = Math.min(best, pointSegmentDistance(pt.x, pt.y, seg.x1, seg.y1, seg.x2, seg.y2));
+  }
+  return Math.min(best, Math.hypot(pt.x - board.cx, pt.y - board.cy));
+}
+
+function computeBoardSide(board) {
+  const c = getCentroid();
+  let score = 0;
+  for (const seg of getBoardSegments(board)) {
+    const dx = seg.x2 - seg.x1;
+    const dy = seg.y2 - seg.y1;
+    const len = Math.hypot(dx, dy) || 1;
+    const nx = -dy / len;
+    const ny = dx / len;
+    const mx = (seg.x1 + seg.x2) * 0.5;
+    const my = (seg.y1 + seg.y2) * 0.5;
+    score += (c.x - mx) * nx + (c.y - my) * ny;
+  }
+  return score >= 0 ? 1 : -1;
+}
+
+function createBoard(cx, cy, rotation, type = selType, shape = selShape, preview = false) {
+  const board = {
+    id: preview ? -1 : boardSeq++,
+    type,
+    shape,
+    color: BOARD_COLOR[type],
+    cx,
+    cy,
+    rotation,
+    angleDeg: getCurrentAngleDeg(),
+    arcSag: getCurrentArcSag(),
+    side: 1,
+  };
+  board.side = computeBoardSide(board);
+  return board;
+}
+
+function addBoard(board) {
+  boards.push(board);
+  updateCounter();
+}
+
+function syncInputsFromBoard(board) {
+  if (!board) return;
+  if (board.shape === 'angle') angleInput.value = Math.round(board.angleDeg);
+  if (board.shape === 'arc') arcInput.value = Math.round(board.arcSag);
+}
+
+function setSelectedBoard(board) {
+  selectedBoardId = board ? board.id : null;
+  syncInputsFromBoard(board);
+}
+
+function getSelectedBoard() {
+  return boards.find(b => b.id === selectedBoardId) || null;
+}
+
+function resolveBoard(board) {
+  for (const seg of getBoardSegments(board)) {
+    const bx = seg.x2 - seg.x1;
+    const by = seg.y2 - seg.y1;
+    const bLen2 = bx * bx + by * by;
+    const bLen = Math.sqrt(bLen2);
+    if (bLen < 1) continue;
+
+    const nx = -by / bLen;
+    const ny = bx / bLen;
+
+    for (const p of pts) {
+      const pdx = p.x - seg.x1;
+      const pdy = p.y - seg.y1;
+      const t = bLen2 > 0 ? (pdx * bx + pdy * by) / bLen2 : 0;
+      if (t < 0 || t > 1) continue;
+
+      const dist = pdx * nx + pdy * ny;
+      const pen = dist * board.side;
+
+      if (pen < BTHICK - CONTACT_SLOP) {
+        const corr = (BTHICK - CONTACT_SLOP - pen) * board.side * BOARD_STIFFNESS;
+        p.x += nx * corr;
+        p.y += ny * corr;
       }
     }
   }
 }
 
 // ════════════════════════════════════════════════════════
-//  PHYSICS STEP
+//  PHYSICS STEP  (Unified PBD solver)
+//
+//  Everything is solved as position constraints:
+//    1. predict positions from velocity
+//    2. iterate edge / area / center / board constraints together
+//    3. derive velocity from final displacement
+//
+//  This removes the old force-vs-constraint conflict that caused jitter.
 // ════════════════════════════════════════════════════════
-function physicsStep() {
-  const A   = getArea();
-  // Pressure magnitude — proportional to area deficit
-  // Drops to 0 when bubble is slightly over natural size (ratio < 0.9 threshold)
-  const rat = A0 / Math.max(A, 1);
-  const pmg = PK * Math.max(0, rat - 0.9);
-
-  // Accumulate forces
-  const fx = new Float64Array(N);
-  const fy = new Float64Array(N);
-
-  // Gravity
-  for (let i = 0; i < N; i++) fy[i] += GRV;
-
-  // Spring + pressure forces along each edge i→j
+function solveEdgeConstraints() {
   for (let i = 0; i < N; i++) {
     const j  = (i + 1) % N;
     const pi = pts[i], pj = pts[j];
+    const sdx = pj.x - pi.x, sdy = pj.y - pi.y;
+    const sd  = Math.hypot(sdx, sdy) || 1e-5;
+    if (Math.abs(sd - SRL) < EDGE_SLOP) continue;
+    const stretch = (sd - SRL) / sd;
+    const corrX = sdx * stretch * EDGE_STIFFNESS * 0.5;
+    const corrY = sdy * stretch * EDGE_STIFFNESS * 0.5;
+    pi.x += corrX;
+    pi.y += corrY;
+    pj.x -= corrX;
+    pj.y -= corrY;
+  }
+}
 
-    const sdx  = pj.x - pi.x;
-    const sdy  = pj.y - pi.y;
-    const sd   = Math.hypot(sdx, sdy) || 1e-5;
+function solveAreaConstraint() {
+  const signedArea = getSignedArea();
+  const C = signedArea - A0;
+  if (Math.abs(C) < AREA_SLOP) return;
 
-    // ── Hooke spring ──────────────────────────
-    const stretch = sd - SRL;
-    const sf      = SK * stretch / sd;
-    fx[i] += sf * sdx;  fy[i] += sf * sdy;
-    fx[j] -= sf * sdx;  fy[j] -= sf * sdy;
+  const grads = new Array(N);
+  let sumGradSq = 0;
 
-    // ── Spring damping ────────────────────────
-    const rvx = pj.vx - pi.vx;
-    const rvy = pj.vy - pi.vy;
-    const vr  = (rvx * sdx + rvy * sdy) / sd;
-    const df  = SD * vr / sd;
-    fx[i] += df * sdx;  fy[i] += df * sdy;
-    fx[j] -= df * sdx;  fy[j] -= df * sdy;
+  for (let i = 0; i < N; i++) {
+    const prev = pts[(i - 1 + N) % N];
+    const next = pts[(i + 1) % N];
+    const gx = 0.5 * (next.y - prev.y);
+    const gy = 0.5 * (prev.x - next.x);
+    grads[i] = { x: gx, y: gy };
+    sumGradSq += gx * gx + gy * gy;
+  }
 
-    // ── Gas pressure (outward normal = (sdy, -sdx)/sd) ──
-    if (pmg > 0) {
-      const pnx = sdy / sd;
-      const pny = -sdx / sd;
-      const pf  = pmg * sd * 0.5;
-      fx[i] += pnx * pf;  fy[i] += pny * pf;
-      fx[j] += pnx * pf;  fy[j] += pny * pf;
+  if (sumGradSq < 1e-6) return;
+
+  const scale = (C / sumGradSq) * AREA_STIFFNESS;
+  for (let i = 0; i < N; i++) {
+    pts[i].x -= grads[i].x * scale;
+    pts[i].y -= grads[i].y * scale;
+  }
+}
+
+function physicsStep() {
+  // 1. Predict positions from previous velocity only.
+  for (let i = 0; i < N; i++) {
+    pts[i].vx *= V_DAMP;
+    pts[i].vy *= V_DAMP;
+    pts[i].ox = pts[i].x;
+    pts[i].oy = pts[i].y;
+    pts[i].x += pts[i].vx;
+    pts[i].y += pts[i].vy;
+  }
+
+  // 2. Solve all constraints in one unified loop.
+  const mg = 4;
+  for (let it = 0; it < C_ITERS; it++) {
+    solveEdgeConstraints();
+    solveAreaConstraint();
+    solveCenterConstraint();
+    for (const b of boards) resolveBoard(b);
+    for (const p of pts) {
+      if (p.x < mg)                 p.x = mg;
+      if (p.x > canvas.width  - mg) p.x = canvas.width  - mg;
+      if (p.y < mg)                 p.y = mg;
+      if (p.y > canvas.height - mg) p.y = canvas.height - mg;
     }
   }
 
-  // Integrate: v += F, v *= damp, x += v
+  // 3. Velocity comes only from solved displacement.
   for (let i = 0; i < N; i++) {
-    pts[i].vx = (pts[i].vx + fx[i]) * VDAMP;
-    pts[i].vy = (pts[i].vy + fy[i]) * VDAMP;
-    pts[i].x  += pts[i].vx;
-    pts[i].y  += pts[i].vy;
-  }
-
-  // ── Constraint iterations ─────────────────
-  const mg = 4;
-  for (let it = 0; it < 3; it++) {
-    for (const b of boards) resolveBoard(b);
-
-    // Canvas boundary
-    for (const p of pts) {
-      if (p.x < mg)                    { p.x = mg;                    if (p.vx < 0) p.vx *= -0.25; }
-      if (p.x > canvas.width  - mg)    { p.x = canvas.width  - mg;    if (p.vx > 0) p.vx *= -0.25; }
-      if (p.y < mg)                    { p.y = mg;                    if (p.vy < 0) p.vy *= -0.25; }
-      if (p.y > canvas.height - mg)    { p.y = canvas.height - mg;    if (p.vy > 0) p.vy *= -0.25; }
+    pts[i].vx = (pts[i].x - pts[i].ox) * V_DAMP;
+    pts[i].vy = (pts[i].y - pts[i].oy) * V_DAMP;
+    if (Math.hypot(pts[i].vx, pts[i].vy) < SLEEP_VEL) {
+      pts[i].vx = 0;
+      pts[i].vy = 0;
     }
   }
 }
@@ -534,67 +776,91 @@ function drawBubble() {
   ctx.restore();
 }
 
-function drawBoard(b) {
-  ctx.save();
-  ctx.lineCap = 'round';
-
-  // Wide soft halo
-  ctx.globalAlpha = 0.20;
-  ctx.shadowColor = b.color;
-  ctx.shadowBlur  = 24;
-  ctx.strokeStyle = b.color;
-  ctx.lineWidth   = 18;
+function traceBoardPath(board) {
+  const pts2 = getBoardPoints(board);
+  if (!pts2.length) return;
   ctx.beginPath();
-  ctx.moveTo(b.x1, b.y1);
-  ctx.lineTo(b.x2, b.y2);
+  ctx.moveTo(pts2[0].x, pts2[0].y);
+  for (let i = 1; i < pts2.length; i++) ctx.lineTo(pts2[i].x, pts2[i].y);
+}
+
+function drawBoardHandles(board) {
+  const handle = getBoardRotateHandle(board);
+
+  ctx.save();
+  ctx.strokeStyle = 'rgba(170, 235, 255, 0.6)';
+  ctx.fillStyle = 'rgba(190, 245, 255, 0.95)';
+  ctx.lineWidth = 1.25;
+
+  ctx.beginPath();
+  ctx.moveTo(board.cx, board.cy);
+  ctx.lineTo(handle.x, handle.y);
   ctx.stroke();
 
-  // Core coloured bar
-  ctx.globalAlpha = 1;
-  ctx.shadowBlur  = 10;
-  ctx.lineWidth   = 7;
-  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(board.cx, board.cy, 5.5, 0, Math.PI * 2);
+  ctx.fill();
 
-  // Bright specular centre line
-  ctx.shadowBlur  = 0;
-  ctx.globalAlpha = 0.72;
-  ctx.strokeStyle = 'rgba(255,255,255,0.82)';
-  ctx.lineWidth   = 2;
+  ctx.beginPath();
+  ctx.arc(handle.x, handle.y, 7, 0, Math.PI * 2);
   ctx.stroke();
-
+  ctx.beginPath();
+  ctx.arc(handle.x, handle.y, 3.5, 0, Math.PI * 2);
+  ctx.fill();
   ctx.restore();
 }
 
-// Drag-to-place preview
-let isDrag  = false;
-let dStart  = null;
-let mPos    = { x: 0, y: 0 };
-
-function drawPreview() {
-  if (!isDrag || !dStart) return;
-  const dx = mPos.x - dStart.x, dy = mPos.y - dStart.y;
-  const dl = Math.hypot(dx, dy);
-  if (dl < 5) return;
-
-  const len  = BOARD_LEN[selType];
-  const dirX = dx / dl, dirY = dy / dl;
-  const mx   = (dStart.x + mPos.x) * 0.5;
-  const my   = (dStart.y + mPos.y) * 0.5;
-  const col  = BOARD_COLOR[selType];
-
+function drawBoard(b, preview = false) {
   ctx.save();
-  ctx.setLineDash([8, 5]);
-  ctx.lineCap     = 'round';
-  ctx.shadowColor = col;
-  ctx.shadowBlur  = 14;
-  ctx.strokeStyle = col;
-  ctx.lineWidth   = 5;
-  ctx.globalAlpha = 0.52;
-  ctx.beginPath();
-  ctx.moveTo(mx - dirX * len * 0.5, my - dirY * len * 0.5);
-  ctx.lineTo(mx + dirX * len * 0.5, my + dirY * len * 0.5);
+  ctx.lineCap = 'round';
+  if (preview) ctx.setLineDash([8, 5]);
+
+  ctx.globalAlpha = preview ? 0.14 : 0.20;
+  ctx.shadowColor = b.color;
+  ctx.shadowBlur  = preview ? 14 : 24;
+  ctx.strokeStyle = b.color;
+  ctx.lineWidth   = preview ? 12 : 18;
+  traceBoardPath(b);
+  ctx.stroke();
+
+  ctx.globalAlpha = preview ? 0.48 : 1;
+  ctx.shadowBlur  = preview ? 8 : 10;
+  ctx.lineWidth   = preview ? 4 : 7;
+  traceBoardPath(b);
+  ctx.stroke();
+
+  ctx.shadowBlur  = 0;
+  ctx.globalAlpha = preview ? 0.34 : 0.72;
+  ctx.strokeStyle = 'rgba(255,255,255,0.82)';
+  ctx.lineWidth   = 2;
+  traceBoardPath(b);
   ctx.stroke();
   ctx.restore();
+
+}
+
+let dragState = null;
+let mPos = { x: 0, y: 0 };
+
+function getPreviewBoard() {
+  if (!dragState || dragState.mode !== 'create') return null;
+  const dx = mPos.x - dragState.start.x;
+  const dy = mPos.y - dragState.start.y;
+  const dl = Math.hypot(dx, dy);
+  if (dl < 5) return null;
+  return createBoard(
+    (dragState.start.x + mPos.x) * 0.5,
+    (dragState.start.y + mPos.y) * 0.5,
+    Math.atan2(dy, dx),
+    selType,
+    selShape,
+    true,
+  );
+}
+
+function drawPreview() {
+  const board = getPreviewBoard();
+  if (board) drawBoard(board, true);
 }
 
 function drawBackground() {
@@ -618,6 +884,8 @@ function render() {
   for (const b of boards) drawBoard(b);
   drawBubble();
   drawPreview();
+  const selected = getSelectedBoard();
+  if (selected) drawBoardHandles(selected);
 
   // Update pressure HUD
   const A   = getArea();
@@ -650,90 +918,169 @@ function canvasPos(e) {
   return { x: e.clientX - r.left, y: e.clientY - r.top };
 }
 
+function getBoardHit(pt) {
+  let bestBody = null;
+  for (let i = boards.length - 1; i >= 0; i--) {
+    const board = boards[i];
+    const handle = getBoardRotateHandle(board);
+    const handleDist = Math.hypot(pt.x - handle.x, pt.y - handle.y);
+    if (handleDist < 14) return { board, mode: 'rotate' };
+
+    const bodyDist = getBoardBodyDistance(board, pt);
+    if (bodyDist < 18 && (!bestBody || bodyDist < bestBody.distance)) {
+      bestBody = { board, mode: 'move', distance: bodyDist };
+    }
+  }
+  return bestBody;
+}
+
+function updateDrag(pt) {
+  mPos = pt;
+  if (!dragState) return;
+
+  const board = boards.find(b => b.id === dragState.boardId);
+  if (dragState.mode === 'move' && board) {
+    board.cx = pt.x - dragState.offsetX;
+    board.cy = pt.y - dragState.offsetY;
+  } else if (dragState.mode === 'rotate' && board) {
+    board.rotation = Math.atan2(pt.y - board.cy, pt.x - board.cx);
+  }
+}
+
+function finishDrag(pt) {
+  if (!dragState) return;
+
+  if (dragState.mode === 'create') {
+    const dx = pt.x - dragState.start.x;
+    const dy = pt.y - dragState.start.y;
+    const dl = Math.hypot(dx, dy);
+    if (dl >= 8) {
+      const board = createBoard(
+        (dragState.start.x + pt.x) * 0.5,
+        (dragState.start.y + pt.y) * 0.5,
+        Math.atan2(dy, dx),
+      );
+      addBoard(board);
+      setSelectedBoard(board);
+    }
+  }
+
+  dragState = null;
+}
+
 canvas.addEventListener('mousedown', e => {
   if (e.button !== 0) return;
-  isDrag  = true;
-  dStart  = canvasPos(e);
-  mPos    = canvasPos(e);
+  const pt = canvasPos(e);
+  mPos = pt;
+
+  const hit = getBoardHit(pt);
+  if (hit) {
+    setSelectedBoard(hit.board);
+    if (hit.mode === 'move') {
+      dragState = {
+        mode: 'move',
+        boardId: hit.board.id,
+        offsetX: pt.x - hit.board.cx,
+        offsetY: pt.y - hit.board.cy,
+      };
+    } else {
+      dragState = { mode: 'rotate', boardId: hit.board.id };
+    }
+    return;
+  }
+
+  setSelectedBoard(null);
+  dragState = { mode: 'create', start: pt };
 });
 
 canvas.addEventListener('mousemove', e => {
-  mPos = canvasPos(e);
+  updateDrag(canvasPos(e));
 });
 
-canvas.addEventListener('mouseup', e => {
-  if (!isDrag || !dStart) return;
-  isDrag = false;
-  const ep = canvasPos(e);
-  const dx = ep.x - dStart.x, dy = ep.y - dStart.y;
-  const dl = Math.hypot(dx, dy);
-
-  if (dl >= 8) {
-    const len  = BOARD_LEN[selType];
-    const dirX = dx / dl, dirY = dy / dl;
-    const mx   = (dStart.x + ep.x) * 0.5;
-    const my   = (dStart.y + ep.y) * 0.5;
-    placeBoard(
-      mx - dirX * len * 0.5, my - dirY * len * 0.5,
-      mx + dirX * len * 0.5, my + dirY * len * 0.5,
-      selType
-    );
-  }
-  dStart = null;
+window.addEventListener('mouseup', e => {
+  finishDrag(canvasPos(e));
 });
 
-canvas.addEventListener('mouseleave', () => { isDrag = false; dStart = null; });
+canvas.addEventListener('mouseleave', () => {
+  if (dragState && dragState.mode !== 'create') dragState = null;
+});
 
 // Right-click: remove nearest board
 canvas.addEventListener('contextmenu', e => {
   e.preventDefault();
   const mp = canvasPos(e);
-  let minI = -1, minD = 22;
+  let minI = -1;
+  let minD = 22;
 
-  boards.forEach((b, i) => {
-    const bx  = b.x2 - b.x1, by = b.y2 - b.y1;
-    const l2  = bx * bx + by * by;
-    const t   = l2 > 0 ? Math.max(0, Math.min(1, ((mp.x - b.x1) * bx + (mp.y - b.y1) * by) / l2)) : 0;
-    const d   = Math.hypot(b.x1 + t * bx - mp.x, b.y1 + t * by - mp.y);
+  boards.forEach((board, i) => {
+    const d = getBoardBodyDistance(board, mp);
     if (d < minD) { minD = d; minI = i; }
   });
 
   if (minI >= 0) {
+    if (boards[minI].id === selectedBoardId) selectedBoardId = null;
     boards.splice(minI, 1);
-    cntEl.textContent = `板子 ${boards.length}`;
+    updateCounter();
   }
 });
 
-// ── Board type buttons ────────────────────────────────
-document.querySelectorAll('.bb').forEach(btn => {
+document.querySelectorAll('[data-t]').forEach(btn => {
   btn.addEventListener('click', () => {
     selType = btn.dataset.t;
-    document.querySelectorAll('.bb').forEach(b => b.classList.remove('on'));
+    document.querySelectorAll('[data-t]').forEach(b => b.classList.remove('on'));
     btn.classList.add('on');
   });
 });
 
+document.querySelectorAll('[data-shape]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    selShape = btn.dataset.shape;
+    document.querySelectorAll('[data-shape]').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+  });
+});
+
+angleInput.addEventListener('input', () => {
+  const board = getSelectedBoard();
+  if (board && board.shape === 'angle') board.angleDeg = getCurrentAngleDeg();
+});
+
+arcInput.addEventListener('input', () => {
+  const board = getSelectedBoard();
+  if (board && board.shape === 'arc') board.arcSag = getCurrentArcSag();
+});
+
 // ── Action buttons ────────────────────────────────────
 document.getElementById('undoBtn').addEventListener('click', () => {
-  if (boards.length) { boards.pop(); cntEl.textContent = `板子 ${boards.length}`; }
+  if (boards.length) {
+    const removed = boards.pop();
+    if (removed.id === selectedBoardId) selectedBoardId = null;
+    updateCounter();
+  }
 });
 document.getElementById('clearBtn').addEventListener('click', () => {
-  boards = []; cntEl.textContent = '板子 0';
+  boards = [];
+  selectedBoardId = null;
+  updateCounter();
 });
 document.getElementById('resetBtn').addEventListener('click', resetAll);
 
 function resetAll() {
   boards = [];
+  selectedBoardId = null;
+  dragState = null;
   initBubble();
   initAmb();
-  cntEl.textContent = '板子 0';
+  updateCounter();
 }
 
 // ── Keyboard shortcuts ────────────────────────────────
 window.addEventListener('keydown', e => {
   if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
-  const map = { '1': 'btn-s', '2': 'btn-m', '3': 'btn-l' };
-  if (map[e.key]) { document.getElementById(map[e.key]).click(); return; }
+  const typeMap = { '1': 'btn-s', '2': 'btn-m', '3': 'btn-l' };
+  const shapeMap = { q: 'shape-line', Q: 'shape-line', w: 'shape-angle', W: 'shape-angle', e: 'shape-arc', E: 'shape-arc' };
+  if (typeMap[e.key]) { document.getElementById(typeMap[e.key]).click(); return; }
+  if (shapeMap[e.key]) { document.getElementById(shapeMap[e.key]).click(); return; }
   if (e.key === 'u' || e.key === 'U') document.getElementById('undoBtn').click();
   if (e.key === 'r' || e.key === 'R') resetAll();
 });
@@ -747,35 +1094,35 @@ function touchPos(e) {
 
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
-  isDrag = true;
-  dStart = touchPos(e);
-  mPos   = touchPos(e);
+  const pt = touchPos(e);
+  mPos = pt;
+  const hit = getBoardHit(pt);
+  if (hit) {
+    setSelectedBoard(hit.board);
+    if (hit.mode === 'move') {
+      dragState = {
+        mode: 'move',
+        boardId: hit.board.id,
+        offsetX: pt.x - hit.board.cx,
+        offsetY: pt.y - hit.board.cy,
+      };
+    } else {
+      dragState = { mode: 'rotate', boardId: hit.board.id };
+    }
+  } else {
+    setSelectedBoard(null);
+    dragState = { mode: 'create', start: pt };
+  }
 }, { passive: false });
 
 canvas.addEventListener('touchmove', e => {
   e.preventDefault();
-  mPos = touchPos(e);
+  updateDrag(touchPos(e));
 }, { passive: false });
 
 canvas.addEventListener('touchend', e => {
   e.preventDefault();
-  if (!isDrag || !dStart) return;
-  isDrag = false;
-  const ep = touchPos(e);
-  const dx = ep.x - dStart.x, dy = ep.y - dStart.y;
-  const dl = Math.hypot(dx, dy);
-  if (dl >= 8) {
-    const len  = BOARD_LEN[selType];
-    const dirX = dx / dl, dirY = dy / dl;
-    const mx   = (dStart.x + ep.x) * 0.5;
-    const my   = (dStart.y + ep.y) * 0.5;
-    placeBoard(
-      mx - dirX * len * 0.5, my - dirY * len * 0.5,
-      mx + dirX * len * 0.5, my + dirY * len * 0.5,
-      selType
-    );
-  }
-  dStart = null;
+  finishDrag(touchPos(e));
 }, { passive: false });
 
 // ════════════════════════════════════════════════════════
